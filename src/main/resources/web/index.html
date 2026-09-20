@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RasheedhaMart — Premium Online Shopping Platform</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-blue: #2563eb;
+            --dark-blue: #0f172a;
+            --light-blue: #eff6ff;
+            --accent-cyan: #06b6d4;
+        }
+        body { background-color: #f8fafc; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
+        .navbar-brand { font-weight: 700; color: #38bdf8 !important; letter-spacing: 0.5px; font-size: 1.4rem; }
+        .hero-banner { 
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 60%, #2563eb 100%); 
+            color: white; 
+            padding: 3rem 0; 
+            border-radius: 0 0 1.5rem 1.5rem; 
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.25);
+        }
+        .product-card { 
+            transition: all 0.25s ease-in-out; 
+            border: 1px solid #e2e8f0; 
+            border-radius: 1rem; 
+            overflow: hidden; 
+            background: #ffffff;
+        }
+        .product-card:hover { 
+            transform: translateY(-6px); 
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05); 
+            border-color: #cbd5e1;
+        }
+        .product-img { height: 210px; object-fit: cover; background-color: #f1f5f9; }
+        .badge-role { font-size: 0.75rem; text-transform: uppercase; padding: 0.35em 0.65em; background-color: #2563eb; }
+        .star-rating { color: #f59e0b; }
+        .btn-primary-blue { background-color: #2563eb; color: white; border: none; }
+        .btn-primary-blue:hover { background-color: #1d4ed8; color: white; }
+        .nav-link.active { font-weight: 600; color: #38bdf8 !important; }
+        .toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 1060; }
+    </style>
+</head>
+<body>
+
+    <!-- Header Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top shadow-sm" style="background-color: var(--dark-blue) !important;">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="#">
+                <i class="bi bi-bag-check-fill me-2 fs-3 text-info"></i> RasheedhaMart
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto ms-3">
+                    <li class="nav-item"><a class="nav-link active" href="#" onclick="showSection('store')"><i class="bi bi-shop me-1"></i> Storefront</a></li>
+                    <li class="nav-item"><a class="nav-link text-light" href="#" onclick="showSection('cart')"><i class="bi bi-cart3 me-1"></i> Cart <span id="cartBadge" class="badge bg-primary text-white rounded-pill">0</span></a></li>
+                    <li class="nav-item"><a class="nav-link text-light" href="#" onclick="showSection('orders')"><i class="bi bi-box-seam me-1"></i> My Orders</a></li>
+                    <li class="nav-item d-none" id="sellerNavItem"><a class="nav-link text-cyan fw-bold" style="color: #06b6d4;" href="#" onclick="showSection('seller')"><i class="bi bi-speedometer2 me-1"></i> Seller Dashboard</a></li>
+                    <li class="nav-item d-none" id="adminNavItem"><a class="nav-link text-warning fw-bold" href="#" onclick="showSection('admin')"><i class="bi bi-shield-lock me-1"></i> Admin Panel</a></li>
+                </ul>
+                <div class="d-flex align-items-center gap-2">
+                    <div id="userGreeting" class="text-light me-2 d-none">
+                        <span id="userName" class="fw-semibold">User</span> <span id="userRole" class="badge badge-role">BUYER</span>
+                    </div>
+                    <button id="btnLoginModal" class="btn btn-outline-info btn-sm rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#authModal"><i class="bi bi-box-arrow-in-right me-1"></i> Sign In / Register</button>
+                    <button id="btnLogout" class="btn btn-outline-danger btn-sm rounded-pill px-3 d-none" onclick="logout()"><i class="bi bi-box-arrow-right me-1"></i> Sign Out</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Banner (Blue Theme) -->
+    <div class="hero-banner">
+        <div class="container text-center">
+            <h1 class="display-4 fw-bold">Welcome to RasheedhaMart</h1>
+            <p class="lead text-light opacity-90 fs-5 mb-4">Your Premium Destination for Quality Products, Instant Carting & Seamless Online Shopping</p>
+            <div class="d-flex justify-content-center flex-wrap gap-3">
+                <span class="badge bg-white bg-opacity-10 text-white border border-light border-opacity-25 px-3 py-2 rounded-pill"><i class="bi bi-shield-check text-info me-1"></i> Secure Authentication</span>
+                <span class="badge bg-white bg-opacity-10 text-white border border-light border-opacity-25 px-3 py-2 rounded-pill"><i class="bi bi-cart-check text-info me-1"></i> Express Cart & Checkout</span>
+                <span class="badge bg-white bg-opacity-10 text-white border border-light border-opacity-25 px-3 py-2 rounded-pill"><i class="bi bi-shop text-info me-1"></i> Verified Sellers</span>
+                <span class="badge bg-white bg-opacity-10 text-white border border-light border-opacity-25 px-3 py-2 rounded-pill"><i class="bi bi-star-fill text-warning me-1"></i> Customer Ratings & Reviews</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mb-5">
+        <!-- Notification Alert -->
+        <div id="alertBox" class="alert alert-dismissible fade show d-none shadow-sm" role="alert">
+            <span id="alertMessage"></span>
+            <button type="button" class="btn-close" onclick="hideAlert()"></button>
+        </div>
+
+        <!-- SECTION: STORE BROWSE & SEARCH -->
+        <section id="sectionStore">
+            <div class="row mb-4 g-3 align-items-center bg-white p-3 rounded-4 shadow-sm border">
+                <div class="col-md-5">
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0"><i class="bi bi-search text-muted"></i></span>
+                        <input type="text" id="searchKeyword" class="form-control border-start-0" placeholder="Search products by title or description..." onkeyup="if(event.key==='Enter') loadProducts(1)">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <select id="searchCategory" class="form-select" onchange="loadProducts(1)">
+                        <option value="ALL">All Categories</option>
+                    </select>
+                </div>
+                <div class="col-md-3 d-grid">
+                    <button class="btn btn-primary-blue rounded-3 py-2" onclick="loadProducts(1)"><i class="bi bi-funnel-fill me-1"></i> Filter Catalog</button>
+                </div>
+            </div>
+
+            <div id="productList" class="row row-cols-1 row-cols-md-3 g-4">
+                <!-- Products loaded dynamically -->
+            </div>
+
+            <!-- Pagination -->
+            <nav class="mt-4">
+                <ul id="pagination" class="pagination justify-content-center"></ul>
+            </nav>
+        </section>
+
+        <!-- SECTION: SHOPPING CART -->
+        <section id="sectionCart" class="d-none">
+            <h3 class="mb-4 text-dark fw-bold"><i class="bi bi-cart3 text-primary me-2"></i> Your Shopping Cart</h3>
+            <div class="row g-4">
+                <div class="col-lg-8">
+                    <div class="card shadow-sm border-0 rounded-4">
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table align-middle mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th class="ps-4">Product Details</th>
+                                            <th>Unit Price</th>
+                                            <th>Quantity</th>
+                                            <th>Subtotal</th>
+                                            <th class="text-center">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="cartTableBody">
+                                        <!-- Cart items loaded dynamically -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="card shadow-sm border-0 rounded-4 bg-white">
+                        <div class="card-body p-4">
+                            <h5 class="card-title fw-bold mb-3">Order Summary</h5>
+                            <div class="d-flex justify-content-between mb-2 text-secondary">
+                                <span>Subtotal</span>
+                                <span id="cartSubtotal" class="fw-bold text-dark">₹0.00</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-3 text-success">
+                                <span>Shipping Charge</span>
+                                <span class="badge bg-success bg-opacity-10 text-success">FREE EXPRESS</span>
+                            </div>
+                            <hr class="my-3">
+                            <div class="d-flex justify-content-between mb-4 fs-5 fw-bold">
+                                <span>Total Payable</span>
+                                <span id="cartGrandTotal" class="text-primary">₹0.00</span>
+                            </div>
+                            <button id="btnCheckout" class="btn btn-success w-100 btn-lg rounded-3 fw-semibold py-2" onclick="checkout()"><i class="bi bi-shield-check me-1"></i> Confirm Order & Pay</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: ORDER HISTORY -->
+        <section id="sectionOrders" class="d-none">
+            <h3 class="mb-4 text-dark fw-bold"><i class="bi bi-box-seam text-primary me-2"></i> My Order History</h3>
+            <div id="ordersContainer">
+                <!-- Orders loaded dynamically -->
+            </div>
+        </section>
+
+        <!-- SECTION: SELLER DASHBOARD -->
+        <section id="sectionSeller" class="d-none">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3 class="fw-bold text-dark"><i class="bi bi-speedometer2 text-info me-2"></i> Seller Dashboard</h3>
+                <button class="btn btn-primary-blue rounded-3" data-bs-toggle="modal" data-bs-target="#productModal" onclick="prepareAddProduct()"><i class="bi bi-plus-circle me-1"></i> Add New Product Listing</button>
+            </div>
+            
+            <ul class="nav nav-pills mb-3" id="sellerTabs">
+                <li class="nav-item"><a class="nav-link active" href="#" id="tabSellerListings" onclick="switchSellerTab('listings')">My Listings</a></li>
+                <li class="nav-item"><a class="nav-link" href="#" id="tabSellerOrders" onclick="switchSellerTab('incoming')">Incoming Customer Orders</a></li>
+            </ul>
+
+            <div id="sellerListingsTab">
+                <div class="table-responsive bg-white rounded-4 shadow-sm border">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="ps-4">ID</th>
+                                <th>Product Name</th>
+                                <th>Category</th>
+                                <th>Price</th>
+                                <th>Stock Status</th>
+                                <th class="text-end pe-4">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sellerListingsBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="sellerIncomingTab" class="d-none">
+                <div id="sellerOrdersContainer"></div>
+            </div>
+        </section>
+
+        <!-- SECTION: ADMIN PANEL -->
+        <section id="sectionAdmin" class="d-none">
+            <h3 class="mb-4 text-dark fw-bold"><i class="bi bi-shield-lock text-warning me-2"></i> System Administration Panel</h3>
+            <ul class="nav nav-pills mb-3">
+                <li class="nav-item"><a class="nav-link active" href="#" id="tabAdminUsers" onclick="switchAdminTab('users')">Manage Registered Users</a></li>
+                <li class="nav-item"><a class="nav-link" href="#" id="tabAdminOrders" onclick="switchAdminTab('orders')">System Orders Audit</a></li>
+            </ul>
+
+            <div id="adminUsersTab">
+                <div class="table-responsive bg-white rounded-4 shadow-sm border">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-dark">
+                            <tr>
+                                <th class="ps-4">ID</th>
+                                <th>Full Name</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Registration Date</th>
+                                <th class="text-end pe-4">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminUsersBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="adminOrdersTab" class="d-none">
+                <div id="adminOrdersContainer"></div>
+            </div>
+        </section>
+    </div>
+
+    <!-- AUTH MODAL -->
+    <div class="modal fade" id="authModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg rounded-4">
+                <div class="modal-header bg-dark text-white rounded-top-4">
+                    <h5 class="modal-title" id="authModalTitle"><i class="bi bi-lock-fill text-info me-2"></i> Sign In to RasheedhaMart</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <ul class="nav nav-pills nav-fill mb-4" id="authTabs">
+                        <li class="nav-item"><a class="nav-link active" href="#" id="tabLogin" onclick="toggleAuthMode('login')">Sign In</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#" id="tabRegister" onclick="toggleAuthMode('register')">Create Account</a></li>
+                    </ul>
+
+                    <form id="authForm" onsubmit="handleAuthSubmit(event)">
+                        <div id="registerFields" class="d-none">
+                            <div class="mb-3">
+                                <label class="form-label font-semibold">Full Name</label>
+                                <input type="text" id="authFullName" class="form-control" placeholder="e.g. John Doe">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label font-semibold">Account Type</label>
+                                <select id="authRole" class="form-select">
+                                    <option value="BUYER">Customer (Buyer)</option>
+                                    <option value="SELLER">Merchant (Seller)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label font-semibold">Email Address</label>
+                            <input type="email" id="authEmail" class="form-control" placeholder="name@domain.com" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label font-semibold">Password</label>
+                            <input type="password" id="authPassword" class="form-control" placeholder="••••••••" required>
+                        </div>
+                        <div class="d-grid mt-4">
+                            <button type="submit" id="btnAuthSubmit" class="btn btn-primary-blue py-2 rounded-3 fw-bold">Sign In</button>
+                        </div>
+                    </form>
+                    
+                    <div class="mt-4 p-3 bg-light rounded-3 border text-secondary small">
+                        <strong>Quick Demo Accounts (Password: <code>password123</code>):</strong><br>
+                        • <strong>Buyer:</strong> <code>buyer.john@gmail.com</code><br>
+                        • <strong>Seller:</strong> <code>seller.rasheedha@rasheedhamart.com</code><br>
+                        • <strong>Admin:</strong> <code>admin@rasheedhamart.com</code>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PRODUCT MODAL -->
+    <div class="modal fade" id="productModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg rounded-4">
+                <div class="modal-header bg-primary text-white rounded-top-4">
+                    <h5 class="modal-title" id="productModalTitle">Add Product Listing</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="productForm" onsubmit="handleProductSubmit(event)">
+                        <input type="hidden" id="prodId">
+                        <div class="mb-3">
+                            <label class="form-label">Product Name</label>
+                            <input type="text" id="prodName" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Category</label>
+                            <input type="text" id="prodCategory" class="form-control" placeholder="e.g. Groceries, Electronics, Fashion" required>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col">
+                                <label class="form-label">Price (₹)</label>
+                                <input type="number" step="0.01" id="prodPrice" class="form-control" required>
+                            </div>
+                            <div class="col">
+                                <label class="form-label">Stock Quantity</label>
+                                <input type="number" id="prodStock" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Image URL</label>
+                            <input type="url" id="prodImageUrl" class="form-control" placeholder="https://images.unsplash.com/...">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Product Description</label>
+                            <textarea id="prodDesc" class="form-control" rows="3"></textarea>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary-blue py-2 rounded-3 fw-bold">Save Listing</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- REVIEW MODAL -->
+    <div class="modal fade" id="reviewModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg rounded-4">
+                <div class="modal-header bg-dark text-white rounded-top-4">
+                    <h5 class="modal-title"><i class="bi bi-star-fill text-warning me-2"></i> Reviews & Ratings</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <input type="hidden" id="reviewProductId">
+                    <div id="reviewSummaryHeader" class="mb-3 p-3 bg-light rounded-3 text-center border"></div>
+                    
+                    <div id="reviewList" class="mb-4" style="max-height: 250px; overflow-y: auto;"></div>
+
+                    <form id="reviewForm" class="border-top pt-3" onsubmit="submitReview(event)">
+                        <h6 class="fw-bold mb-3">Write Your Review</h6>
+                        <div class="mb-3">
+                            <label class="form-label">Star Rating</label>
+                            <select id="reviewRating" class="form-select">
+                                <option value="5">⭐⭐⭐⭐⭐ (5 Stars - Excellent)</option>
+                                <option value="4">⭐⭐⭐⭐ (4 Stars - Good)</option>
+                                <option value="3">⭐⭐⭐ (3 Stars - Average)</option>
+                                <option value="2">⭐⭐ (2 Stars - Below Average)</option>
+                                <option value="1">⭐ (1 Star - Poor)</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Your Feedback</label>
+                            <textarea id="reviewComment" class="form-control" rows="2" placeholder="Write your thoughts..." required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary-blue w-100 rounded-3 py-2 fw-bold">Submit Review</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast-container">
+        <div id="liveToast" class="toast align-items-center text-white bg-primary border-0 shadow-lg rounded-3" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body fs-6" id="toastMessage">
+                    <i class="bi bi-check-circle-fill me-2"></i> Item added to cart!
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let currentUser = null;
+        let isRegisterMode = false;
+        const DEFAULT_SVG = "data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22300%22%20height%3D%22200%22%20viewBox%3D%220%200%20300%20200%22%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22%23e2e8f0%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20fill%3D%22%2364748b%22%20font-family%3D%22sans-serif%22%20font-size%3D%2218%22%3ERasheedhaMart%20Product%3C%2Ftext%3E%3C%2Fsvg%3E";
+
+        document.addEventListener("DOMContentLoaded", async () => {
+            await checkAuthStatus();
+            await loadCategories();
+            await loadProducts(1);
+            if (currentUser) loadCart();
+        });
+
+        function showToast(message, isError = false) {
+            const toastEl = document.getElementById('liveToast');
+            const toastBody = document.getElementById('toastMessage');
+            toastEl.className = `toast align-items-center text-white ${isError ? 'bg-danger' : 'bg-primary'} border-0 shadow-lg rounded-3`;
+            toastBody.innerHTML = `<i class="bi ${isError ? 'bi-exclamation-triangle-fill' : 'bi-check-circle-fill'} me-2"></i> ${message}`;
+            const toast = new bootstrap.Toast(toastEl);
+            toast.show();
+        }
+
+        function showAlert(message, type = 'success') {
+            const box = document.getElementById("alertBox");
+            box.className = `alert alert-${type} alert-dismissible fade show shadow-sm`;
+            document.getElementById("alertMessage").innerText = message;
+            box.classList.remove("d-none");
+            setTimeout(() => hideAlert(), 4000);
+        }
+
+        function hideAlert() {
+            document.getElementById("alertBox").classList.add("d-none");
+        }
+
+        function showSection(section) {
+            ['Store', 'Cart', 'Orders', 'Seller', 'Admin'].forEach(s => {
+                document.getElementById('section' + s).classList.add('d-none');
+            });
+            document.getElementById('section' + section.charAt(0).toUpperCase() + section.slice(1)).classList.remove('d-none');
+            
+            if (section === 'cart') loadCart();
+            if (section === 'orders') loadOrders();
+            if (section === 'seller') loadSellerListings();
+            if (section === 'admin') loadAdminUsers();
+        }
+
+        async function checkAuthStatus() {
+            try {
+                const res = await fetch('/api/v1/auth/me');
+                const data = await res.json();
+                if (data.success) {
+                    currentUser = data.data;
+                } else {
+                    currentUser = null;
+                }
+            } catch (e) {
+                currentUser = null;
+            }
+            updateUserUI();
+        }
+
+        function updateUserUI() {
+            const greeting = document.getElementById("userGreeting");
+            const btnLogin = document.getElementById("btnLoginModal");
+            const btnLogout = document.getElementById("btnLogout");
+            const sellerNav = document.getElementById("sellerNavItem");
+            const adminNav = document.getElementById("adminNavItem");
+
+            if (currentUser) {
+                document.getElementById("userName").innerText = currentUser.fullName;
+                document.getElementById("userRole").innerText = currentUser.role;
+                greeting.classList.remove("d-none");
+                btnLogin.classList.add("d-none");
+                btnLogout.classList.remove("d-none");
+
+                if (currentUser.role === 'SELLER' || currentUser.role === 'ADMIN') sellerNav.classList.remove("d-none");
+                else sellerNav.classList.add("d-none");
+
+                if (currentUser.role === 'ADMIN') adminNav.classList.remove("d-none");
+                else adminNav.classList.add("d-none");
+            } else {
+                greeting.classList.add("d-none");
+                btnLogin.classList.remove("d-none");
+                btnLogout.classList.add("d-none");
+                sellerNav.classList.add("d-none");
+                adminNav.classList.add("d-none");
+            }
+        }
+
+        async function autoLoginDemoBuyer() {
+            try {
+                const res = await fetch('/api/v1/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: 'buyer.john@gmail.com', password: 'password123' })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    currentUser = data.data;
+                    updateUserUI();
+                    return true;
+                }
+            } catch (e) {}
+            return false;
+        }
+
+        function toggleAuthMode(mode) {
+            isRegisterMode = (mode === 'register');
+            document.getElementById("tabLogin").classList.toggle("active", !isRegisterMode);
+            document.getElementById("tabRegister").classList.toggle("active", isRegisterMode);
+            document.getElementById("registerFields").classList.toggle("d-none", !isRegisterMode);
+            document.getElementById("btnAuthSubmit").innerText = isRegisterMode ? "Create Account" : "Sign In";
+        }
+
+        async function handleAuthSubmit(e) {
+            e.preventDefault();
+            const email = document.getElementById("authEmail").value;
+            const password = document.getElementById("authPassword").value;
+            
+            const endpoint = isRegisterMode ? '/api/v1/auth/register' : '/api/v1/auth/login';
+            const payload = isRegisterMode ? {
+                email, password,
+                fullName: document.getElementById("authFullName").value,
+                role: document.getElementById("authRole").value
+            } : { email, password };
+
+            try {
+                const res = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    const modalEl = document.getElementById('authModal');
+                    const modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+                    modal.hide();
+                    showToast(isRegisterMode ? "Registration successful! Please sign in." : "Signed in successfully!");
+                    await checkAuthStatus();
+                    loadCart();
+                } else {
+                    showAlert(data.error, 'danger');
+                }
+            } catch (err) {
+                showAlert(err.message, 'danger');
+            }
+        }
+
+        async function logout() {
+            await fetch('/api/v1/auth/logout', { method: 'POST' });
+            currentUser = null;
+            updateUserUI();
+            showToast("Signed out successfully.");
+            document.getElementById("cartBadge").innerText = "0";
+            showSection('store');
+        }
+
+        async function loadCategories() {
+            try {
+                const res = await fetch('/api/v1/products/categories');
+                const data = await res.json();
+                if (data.success) {
+                    const sel = document.getElementById("searchCategory");
+                    sel.innerHTML = '<option value="ALL">All Categories</option>';
+                    data.data.forEach(c => {
+                        sel.innerHTML += `<option value="${c}">${c}</option>`;
+                    });
+                }
+            } catch (e) {}
+        }
+
+        async function loadProducts(page = 1) {
+            const keyword = document.getElementById("searchKeyword").value;
+            const category = document.getElementById("searchCategory").value;
+
+            try {
+                const url = `/api/v1/products/search?keyword=${encodeURIComponent(keyword)}&category=${encodeURIComponent(category)}&page=${page}`;
+                const res = await fetch(url);
+                const data = await res.json();
+
+                if (data.success) {
+                    const list = document.getElementById("productList");
+                    list.innerHTML = "";
+                    
+                    if (data.data.products.length === 0) {
+                        list.innerHTML = `<div class="col-12 text-center py-5"><i class="bi bi-inbox fs-1 text-muted"></i><p class="mt-2 text-muted">No products found matching your search criteria.</p></div>`;
+                        return;
+                    }
+
+                    data.data.products.forEach(p => {
+                        const imgUrl = p.imageUrl && p.imageUrl.trim() !== "" ? p.imageUrl : DEFAULT_SVG;
+                        list.innerHTML += `
+                            <div class="col">
+                                <div class="card product-card h-100 shadow-sm">
+                                    <img src="${imgUrl}" class="card-img-top product-img" alt="${p.name}" onerror="this.src='${DEFAULT_SVG}'">
+                                    <div class="card-body d-flex flex-column p-4">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 px-2 py-1">${p.category}</span>
+                                            <span class="text-secondary small"><i class="bi bi-box me-1"></i>Stock: ${p.stockQuantity}</span>
+                                        </div>
+                                        <h5 class="card-title text-dark fw-bold text-truncate mb-2">${p.name}</h5>
+                                        <p class="card-text text-secondary small flex-grow-1 mb-3" style="line-height: 1.5;">${p.description || 'Premium quality product available at RasheedhaMart.'}</p>
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                            <span class="fs-4 fw-bold text-primary">₹${p.price.toFixed(2)}</span>
+                                            <button class="btn btn-outline-secondary btn-sm rounded-pill px-3" onclick="openReviews(${p.id})"><i class="bi bi-star-fill text-warning me-1"></i> Reviews</button>
+                                        </div>
+                                        <button class="btn btn-primary-blue w-100 rounded-3 py-2 fw-semibold" id="btnCart_${p.id}" onclick="addToCart(${p.id})">
+                                            <i class="bi bi-cart-plus me-1"></i> Add to Cart
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>`;
+                    });
+
+                    renderPagination(data.data.page, data.data.totalPages);
+                }
+            } catch (e) {
+                showAlert("Error loading catalog: " + e.message, "danger");
+            }
+        }
+
+        function renderPagination(current, total) {
+            const pag = document.getElementById("pagination");
+            pag.innerHTML = "";
+            if (total <= 1) return;
+
+            for (let i = 1; i <= total; i++) {
+                pag.innerHTML += `<li class="page-item ${i === current ? 'active' : ''}"><a class="page-link" href="#" onclick="loadProducts(${i})">${i}</a></li>`;
+            }
+        }
+
+        async function addToCart(productId) {
+            // Auto-login as demo buyer if guest user clicks Add to Cart
+            if (!currentUser) {
+                const loggedIn = await autoLoginDemoBuyer();
+                if (!loggedIn) {
+                    showToast("Please sign in to add items to your cart.", true);
+                    const authModal = new bootstrap.Modal(document.getElementById('authModal'));
+                    authModal.show();
+                    return;
+                }
+            }
+
+            const btn = document.getElementById(`btnCart_${productId}`);
+            if (btn) {
+                btn.innerHTML = `<i class="bi bi-check2 me-1"></i> Added!`;
+                btn.classList.replace("btn-primary-blue", "btn-success");
+                setTimeout(() => {
+                    btn.innerHTML = `<i class="bi bi-cart-plus me-1"></i> Add to Cart`;
+                    btn.classList.replace("btn-success", "btn-primary-blue");
+                }, 1500);
+            }
+
+            try {
+                const res = await fetch('/api/v1/cart', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ productId, quantity: 1 })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    showToast("Item added to your shopping cart!");
+                    await loadCart();
+                } else {
+                    showToast(data.error, true);
+                }
+            } catch (e) {
+                showToast(e.message, true);
+            }
+        }
+
+        async function loadCart() {
+            if (!currentUser) return;
+            try {
+                const res = await fetch('/api/v1/cart');
+                const data = await res.json();
+                if (data.success) {
+                    const items = data.data.items;
+                    document.getElementById("cartBadge").innerText = items.length;
+                    const tbody = document.getElementById("cartTableBody");
+                    tbody.innerHTML = "";
+
+                    if (items.length === 0) {
+                        tbody.innerHTML = `<tr><td colspan="5" class="text-center py-5 text-muted"><i class="bi bi-cart-x fs-1"></i><p class="mt-2">Your shopping cart is currently empty.</p></td></tr>`;
+                    } else {
+                        items.forEach(item => {
+                            const p = item.product;
+                            tbody.innerHTML += `
+                                <tr>
+                                    <td class="ps-4">
+                                        <div class="fw-bold text-dark">${p.name}</div>
+                                        <small class="text-muted">${p.category}</small>
+                                    </td>
+                                    <td class="fw-semibold">₹${p.price.toFixed(2)}</td>
+                                    <td style="width: 130px;">
+                                        <input type="number" min="1" class="form-control form-control-sm text-center" value="${item.quantity}" onchange="updateCartQty(${p.id}, this.value)">
+                                    </td>
+                                    <td class="fw-bold text-primary">₹${(p.price * item.quantity).toFixed(2)}</td>
+                                    <td class="text-center"><button class="btn btn-outline-danger btn-sm rounded-circle" onclick="removeCartItem(${p.id})"><i class="bi bi-trash"></i></button></td>
+                                </tr>`;
+                        });
+                    }
+
+                    document.getElementById("cartSubtotal").innerText = `₹${data.data.runningTotal.toFixed(2)}`;
+                    document.getElementById("cartGrandTotal").innerText = `₹${data.data.runningTotal.toFixed(2)}`;
+                }
+            } catch (e) {}
+        }
+
+        async function updateCartQty(productId, qty) {
+            await fetch('/api/v1/cart', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ productId, quantity: parseInt(qty) })
+            });
+            loadCart();
+        }
+
+        async function removeCartItem(productId) {
+            await fetch(`/api/v1/cart/${productId}`, { method: 'DELETE' });
+            showToast("Item removed from cart.");
+            loadCart();
+        }
+
+        async function checkout() {
+            if (!currentUser) return;
+            try {
+                const res = await fetch('/api/v1/checkout', { method: 'POST' });
+                const data = await res.json();
+                if (data.success) {
+                    showToast(`Order #${data.data.id} placed successfully!`);
+                    await loadCart();
+                    showSection('orders');
+                } else {
+                    showAlert(data.error, "danger");
+                }
+            } catch (e) {
+                showAlert(e.message, "danger");
+            }
+        }
+
+        async function loadOrders() {
+            if (!currentUser) return;
+            try {
+                const res = await fetch('/api/v1/orders');
+                const data = await res.json();
+                if (data.success) {
+                    const container = document.getElementById("ordersContainer");
+                    container.innerHTML = "";
+
+                    if (data.data.length === 0) {
+                        container.innerHTML = `<div class="card p-5 text-center text-muted border-0 shadow-sm rounded-4"><i class="bi bi-box2 fs-1 mb-2"></i><p>No orders placed yet.</p></div>`;
+                        return;
+                    }
+
+                    data.data.forEach(o => {
+                        const statusBadge = getStatusBadge(o.status);
+                        container.innerHTML += `
+                            <div class="card mb-4 shadow-sm border-0 rounded-4 overflow-hidden">
+                                <div class="card-header bg-light d-flex justify-content-between align-items-center py-3 px-4">
+                                    <div><strong>Order #${o.id}</strong> <span class="text-secondary ms-2 small"><i class="bi bi-clock me-1"></i>${new Date(o.createdAt).toLocaleString()}</span></div>
+                                    <div>${statusBadge}</div>
+                                </div>
+                                <div class="card-body p-4">
+                                    <ul class="list-group list-group-flush mb-3">
+                                        ${o.items.map(i => `<li class="list-group-item d-flex justify-content-between align-items-center px-0">${i.product ? i.product.name : 'Product Item'} <span class="text-muted">x${i.quantity}</span> <span class="fw-semibold">₹${(i.unitPrice * i.quantity).toFixed(2)}</span></li>`).join('')}
+                                    </ul>
+                                    <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+                                        <span class="text-secondary fw-semibold">Total Order Amount</span>
+                                        <h4 class="text-primary fw-bold mb-0">₹${o.totalAmount.toFixed(2)}</h4>
+                                    </div>
+                                </div>
+                            </div>`;
+                    });
+                }
+            } catch (e) {}
+        }
+
+        function getStatusBadge(status) {
+            switch(status) {
+                case 'PENDING': return '<span class="badge bg-warning text-dark px-3 py-2 rounded-pill">PENDING</span>';
+                case 'CONFIRMED': return '<span class="badge bg-info text-dark px-3 py-2 rounded-pill">CONFIRMED</span>';
+                case 'SHIPPED': return '<span class="badge bg-primary px-3 py-2 rounded-pill">SHIPPED</span>';
+                case 'DELIVERED': return '<span class="badge bg-success px-3 py-2 rounded-pill">DELIVERED</span>';
+                default: return `<span class="badge bg-secondary px-3 py-2 rounded-pill">${status}</span>`;
+            }
+        }
+
+        async function loadSellerListings() {
+            if (!currentUser) return;
+            try {
+                const res = await fetch('/api/v1/products/seller/listings');
+                const data = await res.json();
+                if (data.success) {
+                    const tbody = document.getElementById("sellerListingsBody");
+                    tbody.innerHTML = "";
+                    data.data.forEach(p => {
+                        tbody.innerHTML += `
+                            <tr>
+                                <td class="ps-4 fw-semibold">${p.id}</td>
+                                <td><strong>${p.name}</strong></td>
+                                <td><span class="badge bg-light text-dark border">${p.category}</span></td>
+                                <td class="fw-bold text-primary">₹${p.price.toFixed(2)}</td>
+                                <td><span class="badge bg-${p.stockQuantity > 5 ? 'success' : 'danger'}">${p.stockQuantity} in stock</span></td>
+                                <td class="text-end pe-4">
+                                    <button class="btn btn-sm btn-outline-primary me-1 rounded-3" onclick="editProduct(${p.id})"><i class="bi bi-pencil"></i> Edit</button>
+                                    <button class="btn btn-sm btn-outline-danger rounded-3" onclick="deleteProduct(${p.id})"><i class="bi bi-trash"></i> Delete</button>
+                                </td>
+                            </tr>`;
+                    });
+                }
+            } catch (e) {}
+        }
+
+        function switchSellerTab(tab) {
+            document.getElementById("tabSellerListings").classList.toggle("active", tab === 'listings');
+            document.getElementById("tabSellerOrders").classList.toggle("active", tab === 'incoming');
+            document.getElementById("sellerListingsTab").classList.toggle("d-none", tab !== 'listings');
+            document.getElementById("sellerIncomingTab").classList.toggle("d-none", tab !== 'incoming');
+            if (tab === 'incoming') loadSellerIncomingOrders();
+        }
+
+        async function loadSellerIncomingOrders() {
+            try {
+                const res = await fetch('/api/v1/orders/seller');
+                const data = await res.json();
+                if (data.success) {
+                    const container = document.getElementById("sellerOrdersContainer");
+                    container.innerHTML = "";
+                    if (data.data.length === 0) {
+                        container.innerHTML = `<div class="card p-5 text-center text-muted border-0 shadow-sm rounded-4"><p>No incoming orders for your products.</p></div>`;
+                        return;
+                    }
+                    data.data.forEach(o => {
+                        container.innerHTML += `
+                            <div class="card mb-3 shadow-sm border-0 rounded-4">
+                                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                                    <span>Order #${o.id} — Status: ${getStatusBadge(o.status)}</span>
+                                    <select class="form-select form-select-sm w-auto" onchange="updateOrderStatus(${o.id}, this.value)">
+                                        <option value="">Update Status...</option>
+                                        <option value="CONFIRMED">CONFIRMED</option>
+                                        <option value="SHIPPED">SHIPPED</option>
+                                        <option value="DELIVERED">DELIVERED</option>
+                                    </select>
+                                </div>
+                                <div class="card-body">
+                                    <ul class="list-group list-group-flush mb-2">
+                                        ${o.items.map(i => `<li class="list-group-item d-flex justify-content-between">${i.product ? i.product.name : 'Item'} (x${i.quantity}) <span>₹${(i.unitPrice * i.quantity).toFixed(2)}</span></li>`).join('')}
+                                    </ul>
+                                </div>
+                            </div>`;
+                    });
+                }
+            } catch (e) {}
+        }
+
+        async function updateOrderStatus(orderId, status) {
+            if (!status) return;
+            try {
+                const res = await fetch('/api/v1/orders', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ orderId, status })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    showToast("Order status updated!");
+                    loadSellerIncomingOrders();
+                } else {
+                    showAlert(data.error, "danger");
+                }
+            } catch (e) {
+                showAlert(e.message, "danger");
+            }
+        }
+
+        function prepareAddProduct() {
+            document.getElementById("productModalTitle").innerText = "Add New Product Listing";
+            document.getElementById("productForm").reset();
+            document.getElementById("prodId").value = "";
+        }
+
+        async function handleProductSubmit(e) {
+            e.preventDefault();
+            const id = document.getElementById("prodId").value;
+            const payload = {
+                id: id ? parseInt(id) : null,
+                name: document.getElementById("prodName").value,
+                category: document.getElementById("prodCategory").value,
+                price: parseFloat(document.getElementById("prodPrice").value),
+                stockQuantity: parseInt(document.getElementById("prodStock").value),
+                imageUrl: document.getElementById("prodImageUrl").value,
+                description: document.getElementById("prodDesc").value
+            };
+
+            const method = id ? 'PUT' : 'POST';
+            try {
+                const res = await fetch('/api/v1/products', {
+                    method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (data.success) {
+                    const modalEl = document.getElementById('productModal');
+                    const modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+                    modal.hide();
+                    showToast("Product saved successfully!");
+                    loadSellerListings();
+                    loadProducts();
+                } else {
+                    showAlert(data.error, 'danger');
+                }
+            } catch (err) {
+                showAlert(err.message, 'danger');
+            }
+        }
+
+        async function deleteProduct(id) {
+            if (!confirm("Are you sure you want to delete this product listing?")) return;
+            await fetch(`/api/v1/products/${id}`, { method: 'DELETE' });
+            showToast("Product listing removed.");
+            loadSellerListings();
+            loadProducts();
+        }
+
+        async function openReviews(productId) {
+            document.getElementById("reviewProductId").value = productId;
+            try {
+                const res = await fetch(`/api/v1/reviews?productId=${productId}`);
+                const data = await res.json();
+                if (data.success) {
+                    const info = data.data;
+                    document.getElementById("reviewSummaryHeader").innerHTML = `
+                        <h4 class="fw-bold mb-1">⭐ ${info.averageRating.toFixed(1)} / 5.0</h4>
+                        <span class="text-secondary small">Based on ${info.reviewCount} customer reviews</span>`;
+
+                    const list = document.getElementById("reviewList");
+                    list.innerHTML = "";
+                    if (info.reviews.length === 0) {
+                        list.innerHTML = `<p class="text-center text-muted py-3">No reviews submitted yet for this product.</p>`;
+                    } else {
+                        info.reviews.forEach(r => {
+                            list.innerHTML += `
+                                <div class="card mb-2 p-3 border-0 bg-light rounded-3">
+                                    <div class="d-flex justify-content-between mb-1">
+                                        <strong class="text-dark">${r.buyerName || 'Verified Buyer'}</strong>
+                                        <span class="star-rating">${'⭐'.repeat(r.rating)}</span>
+                                    </div>
+                                    <p class="mb-0 text-secondary small">${r.comment}</p>
+                                </div>`;
+                        });
+                    }
+
+                    new bootstrap.Modal(document.getElementById('reviewModal')).show();
+                }
+            } catch (e) {}
+        }
+
+        async function submitReview(e) {
+            e.preventDefault();
+            const productId = parseInt(document.getElementById("reviewProductId").value);
+            const rating = parseInt(document.getElementById("reviewRating").value);
+            const comment = document.getElementById("reviewComment").value;
+
+            try {
+                const res = await fetch('/api/v1/reviews', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ productId, rating, comment })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    showToast("Thank you! Review submitted.");
+                    openReviews(productId);
+                } else {
+                    showAlert(data.error, "danger");
+                }
+            } catch (err) {
+                showAlert(err.message, "danger");
+            }
+        }
+
+        function switchAdminTab(tab) {
+            document.getElementById("tabAdminUsers").classList.toggle("active", tab === 'users');
+            document.getElementById("tabAdminOrders").classList.toggle("active", tab === 'orders');
+            document.getElementById("adminUsersTab").classList.toggle("d-none", tab !== 'users');
+            document.getElementById("adminOrdersTab").classList.toggle("d-none", tab !== 'orders');
+            if (tab === 'users') loadAdminUsers();
+            if (tab === 'orders') loadAdminOrders();
+        }
+
+        async function loadAdminUsers() {
+            try {
+                const res = await fetch('/api/v1/admin/users');
+                const data = await res.json();
+                if (data.success) {
+                    const tbody = document.getElementById("adminUsersBody");
+                    tbody.innerHTML = "";
+                    data.data.forEach(u => {
+                        tbody.innerHTML += `
+                            <tr>
+                                <td class="ps-4 fw-semibold">${u.id}</td>
+                                <td><strong>${u.fullName}</strong></td>
+                                <td>${u.email}</td>
+                                <td><span class="badge bg-primary">${u.role}</span></td>
+                                <td>${new Date(u.createdAt).toLocaleDateString()}</td>
+                                <td class="text-end pe-4"><button class="btn btn-sm btn-outline-danger rounded-3" onclick="adminDeleteUser(${u.id})"><i class="bi bi-person-x me-1"></i> Delete</button></td>
+                            </tr>`;
+                    });
+                }
+            } catch (e) {}
+        }
+
+        async function loadAdminOrders() {
+            try {
+                const res = await fetch('/api/v1/admin/orders');
+                const data = await res.json();
+                if (data.success) {
+                    const container = document.getElementById("adminOrdersContainer");
+                    container.innerHTML = "";
+                    data.data.forEach(o => {
+                        container.innerHTML += `
+                            <div class="card mb-3 shadow-sm border-0 rounded-4">
+                                <div class="card-header bg-light d-flex justify-content-between">
+                                    <span>Order #${o.id} — Buyer ID: ${o.buyerId}</span>
+                                    <span>${getStatusBadge(o.status)}</span>
+                                </div>
+                                <div class="card-body">
+                                    <h5 class="text-primary fw-bold">Total: ₹${o.totalAmount.toFixed(2)}</h5>
+                                </div>
+                            </div>`;
+                    });
+                }
+            } catch (e) {}
+        }
+
+        async function adminDeleteUser(id) {
+            if (!confirm("Are you sure you want to delete this user?")) return;
+            await fetch(`/api/v1/admin/user/${id}`, { method: 'DELETE' });
+            showToast("User account removed.");
+            loadAdminUsers();
+        }
+    </script>
+</body>
+</html>
