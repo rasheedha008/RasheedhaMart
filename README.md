@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # RasheedhaMart — Premium Multi-Vendor E-Commerce Platform
 **Java Servlets · JDBC · HikariCP · H2 Database · Embedded Server Container**
 
@@ -81,3 +82,7 @@ D:\RASHEEDHA_MART\
 - **Connection Pool**: HikariCP 5.1.0
 - **Security**: jBCrypt Password Hashing, HTML Output Escaping (XSS Prevention), Session Regeneration
 - **UI Framework**: HTML5, Modern Blue CSS Palette, Bootstrap 5, Bootstrap Icons
+=======
+# RasheedhaMart
+RasheedhaMart is a Java Servlet-based e-commerce web application developed using JDBC, H2, Apache Tomcat, and Maven, featuring user authentication, product management, browsing and search, shopping cart, checkout, order management, reviews, security, testing, and deployment.
+>>>>>>> 87cefa301aa4b666102c0715e1db5f25cd5420c5
