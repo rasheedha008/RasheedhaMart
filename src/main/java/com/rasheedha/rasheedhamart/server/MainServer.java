@@ -18,13 +18,16 @@ public class MainServer {
 
     public static void main(String[] args) throws Exception {
         int port = 8080;
-        if (args.length > 0) {
+        String envPort = System.getenv("PORT");
+        if (envPort != null && !envPort.trim().isEmpty()) {
+            try { port = Integer.parseInt(envPort.trim()); } catch (Exception ignored) {}
+        } else if (args.length > 0) {
             try { port = Integer.parseInt(args[0]); } catch (Exception ignored) {}
         }
 
         System.out.println("==================================================");
         System.out.println(" Starting RasheedhaMart Enterprise Platform...");
-        System.out.println(" Premium Multi-Vendor E-Commerce Application");
+        System.out.println(" Bounded Port: " + port);
         System.out.println("==================================================");
 
         // 1. Initialize Database Pool & Schemas
