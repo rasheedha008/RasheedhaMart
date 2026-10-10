@@ -118,6 +118,17 @@ app.post('/api/v1/auth/login', (req, res) => {
     res.json(success(sanitizeUser(user)));
 });
 
+app.post(['/api/v1/auth/admin/login', '/api/v1/auth/admin-login'], (req, res) => {
+    const { email, password } = req.body;
+    const trimmedEmail = (email || '').trim().toLowerCase();
+    const user = users.find(u => u.email.toLowerCase() === trimmedEmail && u.role === 'ADMIN');
+    if (!user || !bcrypt.compareSync(password || '', user.passwordHash)) {
+        return res.status(400).json(error('Invalid admin email or password.'));
+    }
+    req.session.user = user;
+    res.json(success(sanitizeUser(user)));
+});
+
 app.post('/api/v1/auth/logout', (req, res) => {
     req.session.destroy();
     res.json(success('Logged out successfully.'));
@@ -347,6 +358,7 @@ app.get('/api/v1/admin/analytics/summary', (req, res) => {
     const grossProfit = totalRevenue - estimatedCost;
     
     res.json(success({
+        totalUsers: users.length,
         activeUsers: users.length,
         totalBuyers,
         totalSellers,
@@ -355,7 +367,9 @@ app.get('/api/v1/admin/analytics/summary', (req, res) => {
         totalRevenue,
         estimatedCost,
         grossProfit,
+        profit: grossProfit,
         estimatedProfit: grossProfit,
+        loss: 0,
         estimatedLoss: 0
     }));
 });
@@ -384,6 +398,25 @@ app.get('/api/v1/admin/promotions/active', (req, res) => {
 });
 app.get('/api/v1/admin/promotions', (req, res) => {
     res.json(success(promotions));
+});
+app.post('/api/v1/admin/promotions', (req, res) => {
+    if (!req.session.user || req.session.user.role !== 'ADMIN') return res.status(403).json(error('Admin role required.'));
+    const { title, bannerUrl } = req.body;
+    const newPromo = { id: promoSeq++, title, bannerUrl, active: true, createdAt: new Date() };
+    promotions.push(newPromo);
+    res.status(201).json(success(newPromo));
+});
+app.put('/api/v1/admin/promotions/:id/toggle', (req, res) => {
+    if (!req.session.user || req.session.user.role !== 'ADMIN') return res.status(403).json(error('Admin role required.'));
+    const p = promotions.find(item => item.id === parseInt(req.params.id));
+    if (p) p.active = !p.active;
+    res.json(success(p));
+});
+app.delete('/api/v1/admin/promotions/:id', (req, res) => {
+    if (!req.session.user || req.session.user.role !== 'ADMIN') return res.status(403).json(error('Admin role required.'));
+    const idx = promotions.findIndex(item => item.id === parseInt(req.params.id));
+    if (idx !== -1) promotions.splice(idx, 1);
+    res.json(success(true));
 });
 
 // SMART AI CHATBOT ROUTE
