@@ -1,0 +1,10 @@
+-- V001: Create Users Table
+CREATE TABLE IF NOT EXISTS users (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NOT NULL,
+    full_name VARCHAR(255) NOT NULL,
+    phone_number VARCHAR(20),
+    role VARCHAR(50) NOT NULL CHECK (role IN ('BUYER', 'SELLER', 'ADMIN')),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

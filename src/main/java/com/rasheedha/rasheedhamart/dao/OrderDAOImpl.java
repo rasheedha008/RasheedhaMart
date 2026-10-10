@@ -1,5 +1,6 @@
 package com.rasheedha.rasheedhamart.dao;
 
+import com.rasheedha.rasheedhamart.model.AddressSnapshot;
 import com.rasheedha.rasheedhamart.model.Order;
 import com.rasheedha.rasheedhamart.model.OrderItem;
 import com.rasheedha.rasheedhamart.model.Product;
@@ -11,72 +12,81 @@ import java.util.Optional;
 
 public class OrderDAOImpl implements OrderDAO {
 
+    private final AddressSnapshotDAO snapshotDAO = new AddressSnapshotDAOImpl();
+
     @Override
     public Order createOrder(Order order, List<OrderItem> items) {
-        Connection conn = null;
-        try {
-            conn = DatabaseManager.getConnection();
-            conn.setAutoCommit(false); // Begin transaction
-
-            String orderSql = "INSERT INTO orders (buyer_id, total_amount, status) VALUES (?, ?, ?)";
-            try (PreparedStatement pstmt = conn.prepareStatement(orderSql, Statement.RETURN_GENERATED_KEYS)) {
-                pstmt.setLong(1, order.getBuyerId());
-                pstmt.setBigDecimal(2, order.getTotalAmount());
-                pstmt.setString(3, order.getStatus() != null ? order.getStatus() : "PENDING");
-
-                pstmt.executeUpdate();
-                try (ResultSet rs = pstmt.getGeneratedKeys()) {
-                    if (rs.next()) {
-                        order.setId(rs.getLong(1));
-                    }
-                }
+        try (Connection conn = DatabaseManager.getConnection()) {
+            conn.setAutoCommit(false);
+            try {
+                Order created = createOrderTransactional(conn, order, items);
+                conn.commit();
+                return created;
+            } catch (Exception e) {
+                conn.rollback();
+                throw e;
+            } finally {
+                conn.setAutoCommit(true);
             }
-
-            String itemSql = "INSERT INTO order_items (order_id, product_id, seller_id, quantity, unit_price) VALUES (?, ?, ?, ?, ?)";
-            String updateStockSql = "UPDATE products SET stock_quantity = stock_quantity - ? WHERE id = ? AND stock_quantity >= ?";
-
-            try (PreparedStatement itemStmt = conn.prepareStatement(itemSql);
-                 PreparedStatement stockStmt = conn.prepareStatement(updateStockSql)) {
-
-                for (OrderItem item : items) {
-                    item.setOrderId(order.getId());
-                    itemStmt.setLong(1, order.getId());
-                    itemStmt.setLong(2, item.getProductId());
-                    itemStmt.setLong(3, item.getSellerId());
-                    itemStmt.setInt(4, item.getQuantity());
-                    itemStmt.setBigDecimal(5, item.getUnitPrice());
-                    itemStmt.addBatch();
-
-                    // Deduct stock quantity atomically
-                    stockStmt.setInt(1, item.getQuantity());
-                    stockStmt.setLong(2, item.getProductId());
-                    stockStmt.setInt(3, item.getQuantity());
-                    int updated = stockStmt.executeUpdate();
-                    if (updated == 0) {
-                        throw new SQLException("Insufficient stock for product ID: " + item.getProductId());
-                    }
-                }
-                itemStmt.executeBatch();
-            }
-
-            conn.commit(); // Commit transaction
-            order.setItems(items);
-            return order;
         } catch (Exception e) {
-            if (conn != null) {
-                try { conn.rollback(); } catch (SQLException ex) { /* ignore */ }
-            }
             throw new RuntimeException("Transaction failed while creating order: " + e.getMessage(), e);
-        } finally {
-            if (conn != null) {
-                try { conn.setAutoCommit(true); conn.close(); } catch (SQLException ex) { /* ignore */ }
-            }
         }
     }
 
     @Override
+    public Order createOrderTransactional(Connection conn, Order order, List<OrderItem> items) throws SQLException {
+        String orderSql = "INSERT INTO orders (buyer_id, shipping_address_id, total_amount, status) VALUES (?, ?, ?, ?)";
+        try (PreparedStatement pstmt = conn.prepareStatement(orderSql, Statement.RETURN_GENERATED_KEYS)) {
+            pstmt.setLong(1, order.getBuyerId());
+            if (order.getShippingAddressId() != null) {
+                pstmt.setLong(2, order.getShippingAddressId());
+            } else {
+                pstmt.setNull(2, Types.BIGINT);
+            }
+            pstmt.setBigDecimal(3, order.getTotalAmount());
+            pstmt.setString(4, order.getStatus() != null ? order.getStatus() : "PENDING");
+
+            pstmt.executeUpdate();
+            try (ResultSet rs = pstmt.getGeneratedKeys()) {
+                if (rs.next()) {
+                    order.setId(rs.getLong(1));
+                }
+            }
+        }
+
+        String itemSql = "INSERT INTO order_items (order_id, product_id, seller_id, quantity, unit_price) VALUES (?, ?, ?, ?, ?)";
+        String updateStockSql = "UPDATE products SET stock_quantity = stock_quantity - ? WHERE id = ? AND stock_quantity >= ?";
+
+        try (PreparedStatement itemStmt = conn.prepareStatement(itemSql);
+             PreparedStatement stockStmt = conn.prepareStatement(updateStockSql)) {
+
+            for (OrderItem item : items) {
+                item.setOrderId(order.getId());
+                itemStmt.setLong(1, order.getId());
+                itemStmt.setLong(2, item.getProductId());
+                itemStmt.setLong(3, item.getSellerId());
+                itemStmt.setInt(4, item.getQuantity());
+                itemStmt.setBigDecimal(5, item.getUnitPrice());
+                itemStmt.addBatch();
+
+                stockStmt.setInt(1, item.getQuantity());
+                stockStmt.setLong(2, item.getProductId());
+                stockStmt.setInt(3, item.getQuantity());
+                int updated = stockStmt.executeUpdate();
+                if (updated == 0) {
+                    throw new SQLException("Insufficient stock for product ID: " + item.getProductId());
+                }
+            }
+            itemStmt.executeBatch();
+        }
+
+        order.setItems(items);
+        return order;
+    }
+
+    @Override
     public Optional<Order> findById(Long id) {
-        String sql = "SELECT id, buyer_id, total_amount, status, created_at FROM orders WHERE id = ?";
+        String sql = "SELECT id, buyer_id, shipping_address_id, total_amount, status, created_at FROM orders WHERE id = ?";
         try (Connection conn = DatabaseManager.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
@@ -85,6 +95,7 @@ public class OrderDAOImpl implements OrderDAO {
                 if (rs.next()) {
                     Order order = mapResultSetToOrder(rs);
                     order.setItems(fetchOrderItems(order.getId()));
+                    order.setShippingAddressSnapshot(snapshotDAO.findByOrderId(order.getId()));
                     return Optional.of(order);
                 }
             }
@@ -97,7 +108,7 @@ public class OrderDAOImpl implements OrderDAO {
     @Override
     public List<Order> findByBuyerId(Long buyerId) {
         List<Order> orders = new ArrayList<>();
-        String sql = "SELECT id, buyer_id, total_amount, status, created_at FROM orders WHERE buyer_id = ? ORDER BY id DESC";
+        String sql = "SELECT id, buyer_id, shipping_address_id, total_amount, status, created_at FROM orders WHERE buyer_id = ? ORDER BY id DESC";
         try (Connection conn = DatabaseManager.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
@@ -106,6 +117,7 @@ public class OrderDAOImpl implements OrderDAO {
                 while (rs.next()) {
                     Order order = mapResultSetToOrder(rs);
                     order.setItems(fetchOrderItems(order.getId()));
+                    order.setShippingAddressSnapshot(snapshotDAO.findByOrderId(order.getId()));
                     orders.add(order);
                 }
             }
@@ -118,7 +130,7 @@ public class OrderDAOImpl implements OrderDAO {
     @Override
     public List<Order> findBySellerId(Long sellerId) {
         List<Order> orders = new ArrayList<>();
-        String sql = "SELECT DISTINCT o.id, o.buyer_id, o.total_amount, o.status, o.created_at " +
+        String sql = "SELECT DISTINCT o.id, o.buyer_id, o.shipping_address_id, o.total_amount, o.status, o.created_at " +
                      "FROM orders o JOIN order_items oi ON o.id = oi.order_id WHERE oi.seller_id = ? ORDER BY o.id DESC";
 
         try (Connection conn = DatabaseManager.getConnection();
@@ -129,6 +141,7 @@ public class OrderDAOImpl implements OrderDAO {
                 while (rs.next()) {
                     Order order = mapResultSetToOrder(rs);
                     order.setItems(fetchOrderItemsForSeller(order.getId(), sellerId));
+                    order.setShippingAddressSnapshot(snapshotDAO.findByOrderId(order.getId()));
                     orders.add(order);
                 }
             }
@@ -141,7 +154,7 @@ public class OrderDAOImpl implements OrderDAO {
     @Override
     public List<Order> findAll() {
         List<Order> orders = new ArrayList<>();
-        String sql = "SELECT id, buyer_id, total_amount, status, created_at FROM orders ORDER BY id DESC";
+        String sql = "SELECT id, buyer_id, shipping_address_id, total_amount, status, created_at FROM orders ORDER BY id DESC";
         try (Connection conn = DatabaseManager.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql);
              ResultSet rs = pstmt.executeQuery()) {
@@ -149,6 +162,7 @@ public class OrderDAOImpl implements OrderDAO {
             while (rs.next()) {
                 Order order = mapResultSetToOrder(rs);
                 order.setItems(fetchOrderItems(order.getId()));
+                order.setShippingAddressSnapshot(snapshotDAO.findByOrderId(order.getId()));
                 orders.add(order);
             }
         } catch (SQLException e) {
@@ -259,9 +273,11 @@ public class OrderDAOImpl implements OrderDAO {
     }
 
     private Order mapResultSetToOrder(ResultSet rs) throws SQLException {
+        Long addrId = rs.getObject("shipping_address_id") != null ? rs.getLong("shipping_address_id") : null;
         return new Order(
             rs.getLong("id"),
             rs.getLong("buyer_id"),
+            addrId,
             rs.getBigDecimal("total_amount"),
             rs.getString("status"),
             rs.getTimestamp("created_at")

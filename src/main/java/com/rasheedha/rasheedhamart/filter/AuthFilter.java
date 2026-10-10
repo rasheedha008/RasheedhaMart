@@ -26,14 +26,38 @@ public class AuthFilter implements Filter {
 
         String path = httpRequest.getRequestURI();
 
+        // Handle browser admin URL routes /admin/login and /admin/dashboard
+        if ("/admin/login".equals(path) || "/admin/login/".equals(path)) {
+            HttpSession session = httpRequest.getSession(false);
+            User user = (session != null) ? (User) session.getAttribute("user") : null;
+            if (user != null && "ADMIN".equalsIgnoreCase(user.getRole())) {
+                httpResponse.sendRedirect(httpRequest.getContextPath() + "/admin/dashboard");
+            } else {
+                httpRequest.getRequestDispatcher("/index.html").forward(request, response);
+            }
+            return;
+        }
+
+        if ("/admin/dashboard".equals(path) || "/admin/dashboard/".equals(path) || "/admin".equals(path)) {
+            HttpSession session = httpRequest.getSession(false);
+            User user = (session != null) ? (User) session.getAttribute("user") : null;
+            if (user != null && "ADMIN".equalsIgnoreCase(user.getRole())) {
+                httpRequest.getRequestDispatcher("/index.html").forward(request, response);
+            } else {
+                httpResponse.sendRedirect(httpRequest.getContextPath() + "/admin/login");
+            }
+            return;
+        }
+
         // Public routes bypass auth filter check
-        if (path.startsWith("/api/v1/auth") || path.startsWith("/api/v1/health") || path.equals("/") || path.endsWith(".html") || path.endsWith(".js") || path.endsWith(".css")) {
+        if (path.startsWith("/api/v1/auth") || path.startsWith("/api/v1/health") || path.startsWith("/api/v1/chat") || path.equals("/") || path.endsWith(".html") || path.endsWith(".js") || path.endsWith(".css") || path.endsWith(".png") || path.endsWith(".jpg")) {
             chain.doFilter(request, response);
             return;
         }
 
-        // GET products search/browse is public
-        if (path.startsWith("/api/v1/products") && "GET".equalsIgnoreCase(httpRequest.getMethod()) && !path.contains("/seller")) {
+        // GET active promotions & products search is public
+        if ((path.startsWith("/api/v1/products") && "GET".equalsIgnoreCase(httpRequest.getMethod()) && !path.contains("/seller")) ||
+            (path.startsWith("/api/v1/admin/promotions/active") && "GET".equalsIgnoreCase(httpRequest.getMethod()))) {
             chain.doFilter(request, response);
             return;
         }
@@ -42,13 +66,32 @@ public class AuthFilter implements Filter {
         User user = (session != null) ? (User) session.getAttribute("user") : null;
 
         if (user == null) {
-            sendError(httpResponse, HttpServletResponse.SC_UNAUTHORIZED, "Authentication required. Please log in.");
+            if (path.startsWith("/admin")) {
+                httpResponse.sendRedirect(httpRequest.getContextPath() + "/admin/login");
+            } else {
+                sendError(httpResponse, HttpServletResponse.SC_UNAUTHORIZED, "Authentication required. Please log in.");
+            }
             return;
         }
 
-        // Role-based protection check for admin routes
-        if (path.startsWith("/api/v1/admin") && !"ADMIN".equalsIgnoreCase(user.getRole())) {
-            sendError(httpResponse, HttpServletResponse.SC_FORBIDDEN, "Access denied. Admin role required.");
+        // Active Account Enforcement (Account Suspension Check)
+        if (!user.isActive()) {
+            if (session != null) session.invalidate();
+            if (path.startsWith("/admin")) {
+                httpResponse.sendRedirect(httpRequest.getContextPath() + "/admin/login");
+            } else {
+                sendError(httpResponse, HttpServletResponse.SC_FORBIDDEN, "Your account has been suspended by platform administration.");
+            }
+            return;
+        }
+
+        // Role-based protection check for admin routes (/admin/* and /api/v1/admin/*)
+        if ((path.startsWith("/admin") || path.startsWith("/api/v1/admin")) && !"ADMIN".equalsIgnoreCase(user.getRole())) {
+            if (path.startsWith("/admin")) {
+                httpResponse.sendRedirect(httpRequest.getContextPath() + "/admin/login");
+            } else {
+                sendError(httpResponse, HttpServletResponse.SC_FORBIDDEN, "Access denied. Admin role required.");
+            }
             return;
         }
 

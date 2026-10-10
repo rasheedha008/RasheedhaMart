@@ -53,7 +53,7 @@ public class UserDAOImpl implements UserDAO {
 
     @Override
     public Optional<User> findByEmail(String email) {
-        String sql = "SELECT id, email, password_hash, full_name, role, created_at FROM users WHERE email = ?";
+        String sql = "SELECT id, email, password_hash, full_name, role, created_at FROM users WHERE LOWER(email) = LOWER(?)";
         try (Connection conn = DatabaseManager.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 

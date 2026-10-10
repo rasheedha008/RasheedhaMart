@@ -3,25 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RasheedhaMart — Premium Online Shopping Platform</title>
+    <title>RasheedhaMart — Multi-Vendor E-Commerce Platform</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
     <style>
         :root {
-            --primary-blue: #2563eb;
-            --dark-blue: #0f172a;
-            --light-blue: #eff6ff;
-            --accent-cyan: #06b6d4;
+            --navy-dark: #0a192f;
+            --navy-main: #0f2744;
+            --navy-card: #1b2a4a;
+            --sky-blue: #0284c7;
+            --sky-accent: #38bdf8;
+            --sky-light: #e0f2fe;
+            --bg-body: #f8fafc;
         }
-        body { background-color: #f8fafc; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
-        .navbar-brand { font-weight: 700; color: #38bdf8 !important; letter-spacing: 0.5px; font-size: 1.4rem; }
+        body { background-color: var(--bg-body); font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; color: #334155; }
+        .navbar-brand { font-weight: 700; color: var(--sky-accent) !important; letter-spacing: 0.5px; font-size: 1.4rem; }
+        .bg-navy { background-color: var(--navy-dark) !important; }
         .hero-banner { 
-            background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 60%, #2563eb 100%); 
+            background: linear-gradient(135deg, var(--navy-dark) 0%, var(--navy-main) 60%, var(--sky-blue) 100%); 
             color: white; 
             padding: 3rem 0; 
             border-radius: 0 0 1.5rem 1.5rem; 
             margin-bottom: 2rem;
-            box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.25);
+            box-shadow: 0 10px 25px -5px rgba(2, 132, 199, 0.25);
         }
         .product-card { 
             transition: all 0.25s ease-in-out; 
@@ -33,37 +37,92 @@
         .product-card:hover { 
             transform: translateY(-6px); 
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05); 
-            border-color: #cbd5e1;
+            border-color: var(--sky-accent);
         }
         .product-img { height: 210px; object-fit: cover; background-color: #f1f5f9; }
-        .badge-role { font-size: 0.75rem; text-transform: uppercase; padding: 0.35em 0.65em; background-color: #2563eb; }
-        .star-rating { color: #f59e0b; }
-        .btn-primary-blue { background-color: #2563eb; color: white; border: none; }
-        .btn-primary-blue:hover { background-color: #1d4ed8; color: white; }
-        .nav-link.active { font-weight: 600; color: #38bdf8 !important; }
+        .badge-role { font-size: 0.75rem; text-transform: uppercase; padding: 0.35em 0.65em; background-color: var(--sky-blue); }
+        .btn-sky { background-color: var(--sky-blue); color: white; border: none; }
+        .btn-sky:hover { background-color: #0369a1; color: white; }
+        .nav-pills .nav-link.active { background-color: var(--sky-blue) !important; color: white !important; font-weight: 600; }
+        .nav-link.active { font-weight: 600; color: var(--sky-accent) !important; }
         .toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 1060; }
+        .metric-card { border-radius: 1rem; border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.05); transition: transform 0.2s; }
+        .metric-card:hover { transform: translateY(-3px); }
+
+        /* Floating AI Chatbot Widget */
+        .chat-widget-btn {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--navy-dark) 0%, var(--sky-blue) 100%);
+            color: white;
+            border: 2px solid var(--sky-accent);
+            box-shadow: 0 10px 25px rgba(2, 132, 199, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            z-index: 1050;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .chat-widget-btn:hover { transform: scale(1.08); box-shadow: 0 15px 30px rgba(2, 132, 199, 0.6); }
+        .chat-window {
+            position: fixed;
+            bottom: 95px;
+            right: 25px;
+            width: 380px;
+            height: 500px;
+            background: white;
+            border-radius: 1.25rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            border: 1px solid #cbd5e1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            z-index: 1050;
+            transition: all 0.3s ease;
+        }
+        .chat-header { background: var(--navy-dark); color: white; padding: 1rem; display: flex; justify-content: space-between; align-items: center; }
+        .chat-messages { flex: 1; padding: 1rem; overflow-y: auto; background: #f8fafc; }
+        .chat-msg { max-width: 88%; margin-bottom: 0.75rem; padding: 0.65rem 0.95rem; border-radius: 1rem; font-size: 0.9rem; white-space: pre-line; }
+        .chat-msg.bot { background: white; border: 1px solid #e2e8f0; color: #1e293b; align-self: flex-start; border-bottom-left-radius: 0.25rem; }
+        .chat-msg.user { background: var(--sky-blue); color: white; align-self: flex-end; margin-left: auto; border-bottom-right-radius: 0.25rem; }
+
+        /* Delivery Tracker Stepper */
+        .stepper-item { flex: 1; text-align: center; position: relative; }
+        .stepper-item::after { content: ''; position: absolute; top: 18px; left: 50%; width: 100%; height: 3px; background-color: #cbd5e1; z-index: 1; }
+        .stepper-item:last-child::after { display: none; }
+        .stepper-circle { width: 36px; height: 36px; border-radius: 50%; background-color: #cbd5e1; color: white; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px auto; position: relative; z-index: 2; font-weight: bold; }
+        .stepper-item.completed .stepper-circle { background-color: #10b981; }
+        .stepper-item.active .stepper-circle { background-color: var(--sky-blue); box-shadow: 0 0 0 4px var(--sky-light); }
+        .stepper-item.completed::after { background-color: #10b981; }
     </style>
 </head>
 <body>
 
     <!-- Header Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top shadow-sm" style="background-color: var(--dark-blue) !important;">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-navy sticky-top shadow-sm">
         <div class="container">
-            <a class="navbar-brand d-flex align-items-center" href="#">
-                <i class="bi bi-bag-check-fill me-2 fs-3 text-info"></i> RasheedhaMart
+            <a class="navbar-brand d-flex align-items-center" href="#" onclick="showSection('store')">
+                <i class="bi bi-bag-check-fill me-2 fs-3" style="color: var(--sky-accent);"></i> RasheedhaMart
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto ms-3">
-                    <li class="nav-item"><a class="nav-link active" href="#" onclick="showSection('store')"><i class="bi bi-shop me-1"></i> Storefront</a></li>
-                    <li class="nav-item"><a class="nav-link text-light" href="#" onclick="showSection('cart')"><i class="bi bi-cart3 me-1"></i> Cart <span id="cartBadge" class="badge bg-primary text-white rounded-pill">0</span></a></li>
-                    <li class="nav-item"><a class="nav-link text-light" href="#" onclick="showSection('orders')"><i class="bi bi-box-seam me-1"></i> My Orders</a></li>
-                    <li class="nav-item d-none" id="sellerNavItem"><a class="nav-link text-cyan fw-bold" style="color: #06b6d4;" href="#" onclick="showSection('seller')"><i class="bi bi-speedometer2 me-1"></i> Seller Dashboard</a></li>
-                    <li class="nav-item d-none" id="adminNavItem"><a class="nav-link text-warning fw-bold" href="#" onclick="showSection('admin')"><i class="bi bi-shield-lock me-1"></i> Admin Panel</a></li>
+                    <li class="nav-item"><a class="nav-link active" id="navStore" href="#" onclick="showSection('store')"><i class="bi bi-shop me-1"></i> Storefront</a></li>
+                    <li class="nav-item"><a class="nav-link text-light" id="navCart" href="#" onclick="showSection('cart')"><i class="bi bi-cart3 me-1"></i> Cart <span id="cartBadge" class="badge bg-info text-dark rounded-pill">0</span></a></li>
+                    <li class="nav-item"><a class="nav-link text-light" id="navOrders" href="#" onclick="showSection('orders')"><i class="bi bi-truck me-1"></i> Order Status & Delivery Tracking</a></li>
+                    <li class="nav-item d-none" id="sellerNavItem"><a class="nav-link fw-bold" style="color: var(--sky-accent);" href="#" onclick="showSection('seller')"><i class="bi bi-speedometer2 me-1"></i> Seller Dashboard</a></li>
+                    <li class="nav-item d-none" id="adminPortalNavItem"><a class="nav-link text-warning fw-bold" href="#" onclick="showSection('admin')"><i class="bi bi-shield-lock-fill me-1"></i> Admin Portal</a></li>
                 </ul>
                 <div class="d-flex align-items-center gap-2">
+                    <button id="btnAdminTopRight" class="btn btn-warning btn-sm rounded-pill me-2 d-none" onclick="showSection('admin')"><i class="bi bi-shield-lock-fill me-1"></i> Admin Dashboard</button>
                     <div id="userGreeting" class="text-light me-2 d-none">
                         <span id="userName" class="fw-semibold">User</span> <span id="userRole" class="badge badge-role">BUYER</span>
                     </div>
@@ -74,28 +133,31 @@
         </div>
     </nav>
 
-    <!-- Hero Banner (Blue Theme) -->
+    <!-- Hero Banner -->
     <div class="hero-banner">
         <div class="container text-center">
             <h1 class="display-4 fw-bold">Welcome to RasheedhaMart</h1>
-            <p class="lead text-light opacity-90 fs-5 mb-4">Your Premium Destination for Quality Products, Instant Carting & Seamless Online Shopping</p>
+            <p class="lead text-light opacity-90 fs-5 mb-4">Elevated Multi-Vendor E-Commerce Experience with Smart Catalog AI & Live Order Tracking</p>
             <div class="d-flex justify-content-center flex-wrap gap-3">
-                <span class="badge bg-white bg-opacity-10 text-white border border-light border-opacity-25 px-3 py-2 rounded-pill"><i class="bi bi-shield-check text-info me-1"></i> Secure Authentication</span>
-                <span class="badge bg-white bg-opacity-10 text-white border border-light border-opacity-25 px-3 py-2 rounded-pill"><i class="bi bi-cart-check text-info me-1"></i> Express Cart & Checkout</span>
-                <span class="badge bg-white bg-opacity-10 text-white border border-light border-opacity-25 px-3 py-2 rounded-pill"><i class="bi bi-shop text-info me-1"></i> Verified Sellers</span>
-                <span class="badge bg-white bg-opacity-10 text-white border border-light border-opacity-25 px-3 py-2 rounded-pill"><i class="bi bi-star-fill text-warning me-1"></i> Customer Ratings & Reviews</span>
+                <span class="badge bg-white bg-opacity-10 text-white border border-light border-opacity-25 px-3 py-2 rounded-pill"><i class="bi bi-shield-check me-1" style="color: var(--sky-accent);"></i> Secure Authentication</span>
+                <span class="badge bg-white bg-opacity-10 text-white border border-light border-opacity-25 px-3 py-2 rounded-pill"><i class="bi bi-cart-check me-1" style="color: var(--sky-accent);"></i> Live Cart & Total Sum</span>
+                <span class="badge bg-white bg-opacity-10 text-white border border-light border-opacity-25 px-3 py-2 rounded-pill"><i class="bi bi-truck me-1" style="color: var(--sky-accent);"></i> Delivery Status Tracking</span>
+                <span class="badge bg-white bg-opacity-10 text-white border border-light border-opacity-25 px-3 py-2 rounded-pill"><i class="bi bi-robot text-warning me-1"></i> Smart Catalog AI</span>
             </div>
         </div>
     </div>
 
     <div class="container mb-5">
+        <!-- Promotional Banner Container -->
+        <div id="promoBannerContainer" class="mb-4"></div>
+
         <!-- Notification Alert -->
         <div id="alertBox" class="alert alert-dismissible fade show d-none shadow-sm" role="alert">
             <span id="alertMessage"></span>
             <button type="button" class="btn-close" onclick="hideAlert()"></button>
         </div>
 
-        <!-- SECTION: STORE BROWSE & SEARCH -->
+        <!-- SECTION 1: BUYER STOREFRONT -->
         <section id="sectionStore">
             <div class="row mb-4 g-3 align-items-center bg-white p-3 rounded-4 shadow-sm border">
                 <div class="col-md-5">
@@ -110,12 +172,12 @@
                     </select>
                 </div>
                 <div class="col-md-3 d-grid">
-                    <button class="btn btn-primary-blue rounded-3 py-2" onclick="loadProducts(1)"><i class="bi bi-funnel-fill me-1"></i> Filter Catalog</button>
+                    <button class="btn btn-sky rounded-3 py-2" onclick="loadProducts(1)"><i class="bi bi-funnel-fill me-1"></i> Filter Catalog</button>
                 </div>
             </div>
 
             <div id="productList" class="row row-cols-1 row-cols-md-3 g-4">
-                <!-- Products loaded dynamically -->
+                <!-- Loaded dynamically -->
             </div>
 
             <!-- Pagination -->
@@ -124,136 +186,256 @@
             </nav>
         </section>
 
-        <!-- SECTION: SHOPPING CART -->
+        <!-- SECTION 2: SHOPPING CART & ADDRESS SELECTION -->
         <section id="sectionCart" class="d-none">
-            <h3 class="mb-4 text-dark fw-bold"><i class="bi bi-cart3 text-primary me-2"></i> Your Shopping Cart</h3>
+            <h3 class="fw-bold mb-4 text-navy"><i class="bi bi-cart3 me-2" style="color: var(--sky-blue);"></i> Shopping Cart & Shipping Address</h3>
             <div class="row g-4">
                 <div class="col-lg-8">
-                    <div class="card shadow-sm border-0 rounded-4">
-                        <div class="card-body p-0">
-                            <div class="table-responsive">
-                                <table class="table align-middle mb-0">
-                                    <thead class="table-light">
-                                        <tr>
-                                            <th class="ps-4">Product Details</th>
-                                            <th>Unit Price</th>
-                                            <th>Quantity</th>
-                                            <th>Subtotal</th>
-                                            <th class="text-center">Action</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="cartTableBody">
-                                        <!-- Cart items loaded dynamically -->
-                                    </tbody>
-                                </table>
-                            </div>
+                    <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+                        <div class="card-header bg-white py-3 px-4 fw-bold border-bottom d-flex justify-content-between align-items-center">
+                            <span>Add to Cart Products</span>
+                            <span class="badge bg-primary rounded-pill px-3 py-2" id="cartItemCountLabel">0 Items</span>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="ps-4">Product Name</th>
+                                        <th>Price</th>
+                                        <th>Quantity</th>
+                                        <th>Subtotal</th>
+                                        <th class="text-center">Delete</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="cartTableBody">
+                                    <!-- Loaded dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Shipping Address Selection -->
+                    <div class="card border-0 shadow-sm rounded-4 p-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="fw-bold mb-0"><i class="bi bi-geo-alt-fill text-primary me-2"></i> Select Shipping Address</h5>
+                            <button class="btn btn-outline-primary btn-sm rounded-pill" data-bs-toggle="modal" data-bs-target="#addressModal"><i class="bi bi-plus-lg me-1"></i> Add Address</button>
+                        </div>
+                        <div id="addressSelectionList" class="row g-3">
+                            <!-- Loaded dynamically -->
                         </div>
                     </div>
                 </div>
+
                 <div class="col-lg-4">
-                    <div class="card shadow-sm border-0 rounded-4 bg-white">
-                        <div class="card-body p-4">
-                            <h5 class="card-title fw-bold mb-3">Order Summary</h5>
-                            <div class="d-flex justify-content-between mb-2 text-secondary">
-                                <span>Subtotal</span>
-                                <span id="cartSubtotal" class="fw-bold text-dark">₹0.00</span>
-                            </div>
-                            <div class="d-flex justify-content-between mb-3 text-success">
-                                <span>Shipping Charge</span>
-                                <span class="badge bg-success bg-opacity-10 text-success">FREE EXPRESS</span>
-                            </div>
-                            <hr class="my-3">
-                            <div class="d-flex justify-content-between mb-4 fs-5 fw-bold">
-                                <span>Total Payable</span>
-                                <span id="cartGrandTotal" class="text-primary">₹0.00</span>
-                            </div>
-                            <button id="btnCheckout" class="btn btn-success w-100 btn-lg rounded-3 fw-semibold py-2" onclick="checkout()"><i class="bi bi-shield-check me-1"></i> Confirm Order & Pay</button>
-                        </div>
+                    <div class="card border-0 shadow-sm rounded-4 p-4 sticky-top" style="top: 90px;">
+                        <h5 class="fw-bold mb-3">Total Amount Summary</h5>
+                        <div class="d-flex justify-content-between mb-2"><span>Cart Subtotal</span><strong id="cartSubtotal">₹0.00</strong></div>
+                        <div class="d-flex justify-content-between mb-2"><span>Shipping Fee</span><span class="text-success fw-bold">FREE</span></div>
+                        <hr>
+                        <div class="d-flex justify-content-between mb-4 fs-5"><span class="fw-bold">Total Amount Sum</span><strong id="cartGrandTotal" class="text-primary fs-4">₹0.00</strong></div>
+                        <button class="btn btn-sky w-100 py-3 rounded-3 fw-bold fs-6 shadow" onclick="checkout()"><i class="bi bi-credit-card-2-front-fill me-2"></i> Proceed to Payment</button>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- SECTION: ORDER HISTORY -->
+        <!-- SECTION 3: ORDER STATUS & DELIVERY TRACKING PAGE -->
         <section id="sectionOrders" class="d-none">
-            <h3 class="mb-4 text-dark fw-bold"><i class="bi bi-box-seam text-primary me-2"></i> My Order History</h3>
+            <h3 class="fw-bold mb-4"><i class="bi bi-truck me-2" style="color: var(--sky-blue);"></i> Order Status & Delivery Tracking</h3>
             <div id="ordersContainer">
-                <!-- Orders loaded dynamically -->
+                <!-- Loaded dynamically -->
             </div>
         </section>
 
-        <!-- SECTION: SELLER DASHBOARD -->
+        <!-- SECTION 4: SELLER DASHBOARD -->
         <section id="sectionSeller" class="d-none">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h3 class="fw-bold text-dark"><i class="bi bi-speedometer2 text-info me-2"></i> Seller Dashboard</h3>
-                <button class="btn btn-primary-blue rounded-3" data-bs-toggle="modal" data-bs-target="#productModal" onclick="prepareAddProduct()"><i class="bi bi-plus-circle me-1"></i> Add New Product Listing</button>
+            <h3 class="fw-bold mb-4"><i class="bi bi-speedometer2 me-2" style="color: var(--sky-blue);"></i> Seller Dashboard</h3>
+            <div class="row g-3 mb-4">
+                <div class="col-md-3"><div class="card metric-card p-3 bg-white border-start border-primary border-4"><h6>Total Listings</h6><h3 id="sellerTotalProd" class="fw-bold text-primary mb-0">0</h3></div></div>
+                <div class="col-md-3"><div class="card metric-card p-3 bg-white border-start border-success border-4"><h6>Active Inventory</h6><h3 id="sellerActiveProd" class="fw-bold text-success mb-0">0</h3></div></div>
+                <div class="col-md-3"><div class="card metric-card p-3 bg-white border-start border-warning border-4"><h6>Orders Received</h6><h3 id="sellerOrdersCount" class="fw-bold text-warning mb-0">0</h3></div></div>
+                <div class="col-md-3"><div class="card metric-card p-3 bg-white border-start border-info border-4"><h6>Platform Status</h6><span class="badge bg-success fs-6 mt-1">Verified Seller</span></div></div>
             </div>
-            
-            <ul class="nav nav-pills mb-3" id="sellerTabs">
-                <li class="nav-item"><a class="nav-link active" href="#" id="tabSellerListings" onclick="switchSellerTab('listings')">My Listings</a></li>
-                <li class="nav-item"><a class="nav-link" href="#" id="tabSellerOrders" onclick="switchSellerTab('incoming')">Incoming Customer Orders</a></li>
-            </ul>
 
-            <div id="sellerListingsTab">
-                <div class="table-responsive bg-white rounded-4 shadow-sm border">
-                    <table class="table table-hover align-middle mb-0">
+            <div class="card border-0 shadow-sm rounded-4 p-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-bold mb-0">My Product Listings</h5>
+                    <button class="btn btn-sky rounded-pill btn-sm" data-bs-toggle="modal" data-bs-target="#productModal"><i class="bi bi-plus-circle me-1"></i> Add New Product</button>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
                         <thead class="table-light">
-                            <tr>
-                                <th class="ps-4">ID</th>
-                                <th>Product Name</th>
-                                <th>Category</th>
-                                <th>Price</th>
-                                <th>Stock Status</th>
-                                <th class="text-end pe-4">Actions</th>
-                            </tr>
+                            <tr><th>ID</th><th>Product Name</th><th>Category</th><th>Price</th><th>Stock</th><th class="text-end">Action</th></tr>
                         </thead>
                         <tbody id="sellerListingsBody"></tbody>
                     </table>
                 </div>
             </div>
-
-            <div id="sellerIncomingTab" class="d-none">
-                <div id="sellerOrdersContainer"></div>
-            </div>
         </section>
 
-        <!-- SECTION: ADMIN PANEL -->
+        <!-- SECTION 5: ADMIN MANAGEMENT DASHBOARD -->
         <section id="sectionAdmin" class="d-none">
-            <h3 class="mb-4 text-dark fw-bold"><i class="bi bi-shield-lock text-warning me-2"></i> System Administration Panel</h3>
-            <ul class="nav nav-pills mb-3">
-                <li class="nav-item"><a class="nav-link active" href="#" id="tabAdminUsers" onclick="switchAdminTab('users')">Manage Registered Users</a></li>
-                <li class="nav-item"><a class="nav-link" href="#" id="tabAdminOrders" onclick="switchAdminTab('orders')">System Orders Audit</a></li>
-            </ul>
-
-            <div id="adminUsersTab">
-                <div class="table-responsive bg-white rounded-4 shadow-sm border">
-                    <table class="table table-hover align-middle mb-0">
-                        <thead class="table-dark">
-                            <tr>
-                                <th class="ps-4">ID</th>
-                                <th>Full Name</th>
-                                <th>Email</th>
-                                <th>Role</th>
-                                <th>Registration Date</th>
-                                <th class="text-end pe-4">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="adminUsersBody"></tbody>
-                    </table>
-                </div>
+            <h3 class="fw-bold mb-4"><i class="bi bi-shield-lock me-2 text-warning"></i> Platform Admin Center</h3>
+            
+            <!-- 10 REQUIRED ADMIN METRICS -->
+            <div class="row g-3 mb-4">
+                <div class="col-md-2-4 col-sm-6"><div class="card metric-card p-3 bg-white border-start border-primary border-4"><h6>Total Users</h6><h3 id="admTotalUsers" class="fw-bold text-primary mb-0">0</h3></div></div>
+                <div class="col-md-2-4 col-sm-6"><div class="card metric-card p-3 bg-white border-start border-info border-4"><h6>Total Buyers</h6><h3 id="admTotalBuyers" class="fw-bold text-info mb-0">0</h3></div></div>
+                <div class="col-md-2-4 col-sm-6"><div class="card metric-card p-3 bg-white border-start border-secondary border-4"><h6>Total Sellers</h6><h3 id="admTotalSellers" class="fw-bold text-secondary mb-0">0</h3></div></div>
+                <div class="col-md-2-4 col-sm-6"><div class="card metric-card p-3 bg-white border-start border-warning border-4"><h6>Total Products</h6><h3 id="admTotalProducts" class="fw-bold text-warning mb-0">0</h3></div></div>
+                <div class="col-md-2-4 col-sm-6"><div class="card metric-card p-3 bg-white border-start border-dark border-4"><h6>Total Orders</h6><h3 id="admTotalOrders" class="fw-bold text-dark mb-0">0</h3></div></div>
             </div>
 
-            <div id="adminOrdersTab" class="d-none">
-                <div id="adminOrdersContainer"></div>
+            <div class="row g-3 mb-4">
+                <div class="col-md-3"><div class="card metric-card p-4 bg-white border-start border-primary border-4"><h6>Total Revenue</h6><h3 id="admRev" class="fw-bold text-primary mb-0">₹0.00</h3></div></div>
+                <div class="col-md-3"><div class="card metric-card p-4 bg-white border-start border-secondary border-4"><h6>Estimated Cost</h6><h3 id="admCost" class="fw-bold text-secondary mb-0">₹0.00</h3></div></div>
+                <div class="col-md-3"><div class="card metric-card p-4 bg-white border-start border-success border-4"><h6>Profit</h6><h3 id="admProfit" class="fw-bold text-success mb-0">₹0.00</h3></div></div>
+                <div class="col-md-3"><div class="card metric-card p-4 bg-white border-start border-danger border-4"><h6>Loss</h6><h3 id="admLoss" class="fw-bold text-danger mb-0">₹0.00</h3></div></div>
+            </div>
+
+            <ul class="nav nav-tabs mb-4">
+                <li class="nav-item"><a class="nav-link active fw-bold" href="#" onclick="switchAdminTab('users')">User Moderation</a></li>
+                <li class="nav-item"><a class="nav-link fw-bold" href="#" onclick="switchAdminTab('orders')">Global Orders</a></li>
+                <li class="nav-item"><a class="nav-link fw-bold" href="#" onclick="switchAdminTab('promos')">Marketing Banners</a></li>
+            </ul>
+
+            <div id="adminUsersTab" class="card border-0 shadow-sm rounded-4 p-4">
+                <h5 class="fw-bold mb-3">Registered Platform Users</h5>
+                <div class="table-responsive"><table class="table table-hover"><thead><tr><th>ID</th><th>Full Name</th><th>Email</th><th>Role</th><th>Action</th></tr></thead><tbody id="adminUsersBody"></tbody></table></div>
+            </div>
+
+            <div id="adminOrdersTab" class="card border-0 shadow-sm rounded-4 p-4 d-none">
+                <h5 class="fw-bold mb-3">Global Platform Orders</h5>
+                <div class="table-responsive"><table class="table table-hover"><thead><tr><th>Order ID</th><th>Buyer ID</th><th>Amount</th><th>Status</th><th>Date</th></tr></thead><tbody id="adminOrdersBody"></tbody></table></div>
+            </div>
+
+            <div id="adminPromosTab" class="card border-0 shadow-sm rounded-4 p-4 d-none">
+                <div class="d-flex justify-content-between mb-3"><h5 class="fw-bold">Marketing Banners</h5><button class="btn btn-sky btn-sm rounded-pill" data-bs-toggle="modal" data-bs-target="#promoModal"><i class="bi bi-plus-lg"></i> Add Banner</button></div>
+                <div class="table-responsive"><table class="table table-hover"><thead><tr><th>ID</th><th>Title</th><th>Banner Image</th><th>Active</th><th>Action</th></tr></thead><tbody id="adminPromosBody"></tbody></table></div>
             </div>
         </section>
     </div>
 
-    <!-- AUTH MODAL -->
+    <!-- ORDER SUCCESS CONFIRMATION MODAL -->
+    <div class="modal fade" id="orderSuccessModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0 shadow-lg rounded-4">
+                <div class="modal-header bg-success text-white rounded-top-4 py-3">
+                    <h4 class="modal-title fw-bold"><i class="bi bi-check-circle-fill me-2"></i> THE ORDER IS PLACED SUCCESSFULLY!</h4>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4" id="orderSuccessDetails">
+                    <!-- Invoice content loaded dynamically -->
+                </div>
+                <div class="modal-footer bg-light rounded-bottom-4">
+                    <button type="button" class="btn btn-sky fw-bold rounded-3 px-4" data-bs-dismiss="modal" onclick="showSection('orders')"><i class="bi bi-truck me-1"></i> Track Order Delivery Status</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI CHATBOT FLOATING WIDGET -->
+    <div class="chat-widget-btn" onclick="toggleChatWindow()" title="RasheedhaMart AI Assistant">
+        <i class="bi bi-robot"></i>
+    </div>
+    <div id="chatWindow" class="chat-window d-none">
+        <div class="chat-header">
+            <div class="d-flex align-items-center">
+                <i class="bi bi-robot fs-4 text-info me-2"></i>
+                <div><strong class="d-block text-white">RasheedhaMart Smart AI</strong><small class="text-light opacity-75">Catalog, Price & Stock Assistant</small></div>
+            </div>
+            <button class="btn-close btn-close-white btn-sm" onclick="toggleChatWindow()"></button>
+        </div>
+        <div id="chatMessages" class="chat-messages d-flex flex-column">
+            <div class="chat-msg bot">Hello! I am your RasheedhaMart Smart AI. Ask me anything like: "products under 1000 rupees" or "how many electronics items are available?"</div>
+        </div>
+        <div class="p-2 bg-white border-top">
+            <form id="chatForm" onsubmit="handleChatSubmit(event)" class="input-group">
+                <input type="text" id="chatInput" class="form-control form-control-sm border-end-0" placeholder="Ask e.g. electronics under 1000 rupees..." maxlength="500" required>
+                <button type="submit" class="btn btn-sky btn-sm"><i class="bi bi-send-fill"></i></button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ADDRESS MODAL -->
+    <div class="modal fade" id="addressModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg rounded-4">
+                <div class="modal-header bg-navy text-white rounded-top-4">
+                    <h5 class="modal-title"><i class="bi bi-geo-alt-fill text-info me-2"></i> Add Shipping Address</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="addressForm" onsubmit="saveAddress(event)">
+                        <div class="mb-3"><label class="form-label">Full Name</label><input type="text" id="addrName" class="form-control" required></div>
+                        <div class="mb-3"><label class="form-label">Phone Number</label><input type="text" id="addrPhone" class="form-control" required></div>
+                        <div class="mb-3"><label class="form-label">Address Line 1</label><input type="text" id="addrLine1" class="form-control" required></div>
+                        <div class="mb-3"><label class="form-label">Address Line 2</label><input type="text" id="addrLine2" class="form-control"></div>
+                        <div class="row mb-3">
+                            <div class="col"><label class="form-label">City</label><input type="text" id="addrCity" class="form-control" required></div>
+                            <div class="col"><label class="form-label">State</label><input type="text" id="addrState" class="form-control" required></div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col"><label class="form-label">Postal Code</label><input type="text" id="addrPostal" class="form-control" required></div>
+                            <div class="col"><label class="form-label">Country</label><input type="text" id="addrCountry" class="form-control" value="India" required></div>
+                        </div>
+                        <div class="form-check mb-3"><input type="checkbox" id="addrDefault" class="form-check-input"><label class="form-check-label">Set as Default Address</label></div>
+                        <button type="submit" class="btn btn-sky w-100 rounded-3 py-2 fw-bold">Save Shipping Address</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PRODUCT MODAL (SELLER) -->
+    <div class="modal fade" id="productModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg rounded-4">
+                <div class="modal-header bg-navy text-white rounded-top-4">
+                    <h5 class="modal-title"><i class="bi bi-box-seam text-info me-2"></i> Add New Product Listing</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="productForm" onsubmit="saveProduct(event)">
+                        <div class="mb-3"><label class="form-label">Product Name</label><input type="text" id="prodName" class="form-control" required></div>
+                        <div class="mb-3"><label class="form-label">Category</label><input type="text" id="prodCategory" class="form-control" placeholder="Electronics, Fashion, Groceries..." required></div>
+                        <div class="row mb-3">
+                            <div class="col"><label class="form-label">Price (₹)</label><input type="number" step="0.01" id="prodPrice" class="form-control" required></div>
+                            <div class="col"><label class="form-label">Stock Quantity</label><input type="number" id="prodStock" class="form-control" required></div>
+                        </div>
+                        <div class="mb-3"><label class="form-label">Image URL</label><input type="url" id="prodImageUrl" class="form-control" placeholder="https://images.unsplash.com/..."></div>
+                        <div class="mb-3"><label class="form-label">Description</label><textarea id="prodDesc" class="form-control" rows="3"></textarea></div>
+                        <button type="submit" class="btn btn-sky w-100 rounded-3 py-2 fw-bold">Create Product Listing</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PROMO MODAL (ADMIN) -->
+    <div class="modal fade" id="promoModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg rounded-4">
+                <div class="modal-header bg-navy text-white rounded-top-4">
+                    <h5 class="modal-title"><i class="bi bi-megaphone-fill text-info me-2"></i> Add Marketing Banner</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="promoForm" onsubmit="savePromo(event)">
+                        <div class="mb-3"><label class="form-label">Banner Title</label><input type="text" id="promoTitle" class="form-control" required></div>
+                        <div class="mb-3"><label class="form-label">Image URL</label><input type="url" id="promoUrl" class="form-control" required></div>
+                        <button type="submit" class="btn btn-sky w-100 rounded-3 py-2 fw-bold">Publish Promotion</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AUTH MODAL (SIGN IN / REGISTER) -->
     <div class="modal fade" id="authModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow-lg rounded-4">
-                <div class="modal-header bg-dark text-white rounded-top-4">
+                <div class="modal-header bg-navy text-white rounded-top-4">
                     <h5 class="modal-title" id="authModalTitle"><i class="bi bi-lock-fill text-info me-2"></i> Sign In to RasheedhaMart</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
@@ -265,81 +447,48 @@
 
                     <form id="authForm" onsubmit="handleAuthSubmit(event)">
                         <div id="registerFields" class="d-none">
+                            <div class="mb-3"><label class="form-label">Full Name</label><input type="text" id="authFullName" class="form-control"></div>
                             <div class="mb-3">
-                                <label class="form-label font-semibold">Full Name</label>
-                                <input type="text" id="authFullName" class="form-control" placeholder="e.g. John Doe">
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label font-semibold">Account Type</label>
+                                <label class="form-label">Account Type</label>
                                 <select id="authRole" class="form-select">
                                     <option value="BUYER">Customer (Buyer)</option>
                                     <option value="SELLER">Merchant (Seller)</option>
                                 </select>
                             </div>
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label font-semibold">Email Address</label>
-                            <input type="email" id="authEmail" class="form-control" placeholder="name@domain.com" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label font-semibold">Password</label>
-                            <input type="password" id="authPassword" class="form-control" placeholder="••••••••" required>
-                        </div>
-                        <div class="d-grid mt-4">
-                            <button type="submit" id="btnAuthSubmit" class="btn btn-primary-blue py-2 rounded-3 fw-bold">Sign In</button>
-                        </div>
+                        <div class="mb-3"><label class="form-label">Email Address</label><input type="email" id="authEmail" class="form-control" required></div>
+                        <div class="mb-3"><label class="form-label">Password</label><input type="password" id="authPassword" class="form-control" required></div>
+                        <div class="d-grid mt-4"><button type="submit" id="btnAuthSubmit" class="btn btn-sky py-2 rounded-3 fw-bold">Sign In</button></div>
                     </form>
-                    
-                    <div class="mt-4 p-3 bg-light rounded-3 border text-secondary small">
-                        <strong>Quick Demo Accounts (Password: <code>password123</code>):</strong><br>
-                        • <strong>Buyer:</strong> <code>buyer.john@gmail.com</code><br>
-                        • <strong>Seller:</strong> <code>seller.rasheedha@rasheedhamart.com</code><br>
-                        • <strong>Admin:</strong> <code>admin@rasheedhamart.com</code>
+                    <div class="text-center mt-3 pt-3 border-top">
+                        <a href="#" onclick="openAdminModalFromAuth(); return false;" class="text-warning text-decoration-none small fw-bold"><i class="bi bi-shield-lock-fill me-1"></i> Are you an Administrator? Click here for Admin Sign-In</a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- PRODUCT MODAL -->
-    <div class="modal fade" id="productModal" tabindex="-1">
+    <!-- ADMIN AUTH MODAL -->
+    <div class="modal fade" id="adminAuthModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow-lg rounded-4">
-                <div class="modal-header bg-primary text-white rounded-top-4">
-                    <h5 class="modal-title" id="productModalTitle">Add Product Listing</h5>
+                <div class="modal-header bg-navy text-white rounded-top-4 py-3">
+                    <h5 class="modal-title text-warning fw-bold"><i class="bi bi-shield-lock-fill me-2"></i> RasheedhaMart Admin Sign-In</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body p-4">
-                    <form id="productForm" onsubmit="handleProductSubmit(event)">
-                        <input type="hidden" id="prodId">
+                    <div id="adminAuthAlert" class="alert alert-danger d-none rounded-3 py-2 small fw-semibold mb-3"></div>
+                    <form id="adminAuthForm" onsubmit="handleAdminAuthSubmit(event)">
                         <div class="mb-3">
-                            <label class="form-label">Product Name</label>
-                            <input type="text" id="prodName" class="form-control" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Category</label>
-                            <input type="text" id="prodCategory" class="form-control" placeholder="e.g. Groceries, Electronics, Fashion" required>
-                        </div>
-                        <div class="row mb-3">
-                            <div class="col">
-                                <label class="form-label">Price (₹)</label>
-                                <input type="number" step="0.01" id="prodPrice" class="form-control" required>
-                            </div>
-                            <div class="col">
-                                <label class="form-label">Stock Quantity</label>
-                                <input type="number" id="prodStock" class="form-control" required>
-                            </div>
+                            <label class="form-label fw-semibold">Admin Email Address</label>
+                            <input type="email" id="adminAuthEmail" class="form-control" placeholder="RasheedhaMartAdmin@gmail.com" value="RasheedhaMartAdmin@gmail.com" required>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Image URL</label>
-                            <input type="url" id="prodImageUrl" class="form-control" placeholder="https://images.unsplash.com/...">
+                            <label class="form-label fw-semibold">Admin Password</label>
+                            <input type="password" id="adminAuthPassword" class="form-control" placeholder="Enter admin password (e.g. rasheedhamart00)" required>
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label">Product Description</label>
-                            <textarea id="prodDesc" class="form-control" rows="3"></textarea>
-                        </div>
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-primary-blue py-2 rounded-3 fw-bold">Save Listing</button>
+                        <div class="d-grid mt-4">
+                            <button type="submit" class="btn btn-warning py-2 rounded-3 fw-bold"><i class="bi bi-box-arrow-in-right me-1"></i> Sign In to Admin Dashboard</button>
                         </div>
                     </form>
                 </div>
@@ -347,51 +496,20 @@
         </div>
     </div>
 
-    <!-- REVIEW MODAL -->
-    <div class="modal fade" id="reviewModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 shadow-lg rounded-4">
-                <div class="modal-header bg-dark text-white rounded-top-4">
-                    <h5 class="modal-title"><i class="bi bi-star-fill text-warning me-2"></i> Reviews & Ratings</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body p-4">
-                    <input type="hidden" id="reviewProductId">
-                    <div id="reviewSummaryHeader" class="mb-3 p-3 bg-light rounded-3 text-center border"></div>
-                    
-                    <div id="reviewList" class="mb-4" style="max-height: 250px; overflow-y: auto;"></div>
-
-                    <form id="reviewForm" class="border-top pt-3" onsubmit="submitReview(event)">
-                        <h6 class="fw-bold mb-3">Write Your Review</h6>
-                        <div class="mb-3">
-                            <label class="form-label">Star Rating</label>
-                            <select id="reviewRating" class="form-select">
-                                <option value="5">⭐⭐⭐⭐⭐ (5 Stars - Excellent)</option>
-                                <option value="4">⭐⭐⭐⭐ (4 Stars - Good)</option>
-                                <option value="3">⭐⭐⭐ (3 Stars - Average)</option>
-                                <option value="2">⭐⭐ (2 Stars - Below Average)</option>
-                                <option value="1">⭐ (1 Star - Poor)</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Your Feedback</label>
-                            <textarea id="reviewComment" class="form-control" rows="2" placeholder="Write your thoughts..." required></textarea>
-                        </div>
-                        <button type="submit" class="btn btn-primary-blue w-100 rounded-3 py-2 fw-bold">Submit Review</button>
-                    </form>
-                </div>
-            </div>
+    <!-- Platform Footer -->
+    <footer class="bg-navy text-light py-4 mt-5 border-top border-secondary">
+        <div class="container d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <span class="small opacity-75">&copy; 2026 RasheedhaMart Capstone Platform. All Rights Reserved.</span>
+            <a href="#" onclick="openAdminModal(); return false;" class="text-warning text-decoration-none small fw-semibold"><i class="bi bi-shield-lock-fill me-1"></i> Admin Portal Sign-In</a>
         </div>
-    </div>
+    </footer>
 
-    <!-- Toast Notification -->
+    <!-- Toast Container -->
     <div class="toast-container">
-        <div id="liveToast" class="toast align-items-center text-white bg-primary border-0 shadow-lg rounded-3" role="alert" aria-live="assertive" aria-atomic="true">
+        <div id="liveToast" class="toast align-items-center text-white bg-primary border-0 shadow-lg rounded-3" role="alert">
             <div class="d-flex">
-                <div class="toast-body fs-6" id="toastMessage">
-                    <i class="bi bi-check-circle-fill me-2"></i> Item added to cart!
-                </div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                <div class="toast-body fs-6" id="toastMessage"><i class="bi bi-check-circle-fill me-2"></i> Operation completed successfully!</div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
             </div>
         </div>
     </div>
@@ -399,128 +517,133 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         let currentUser = null;
-        let isRegisterMode = false;
+        let selectedAddressId = null;
+        let authMode = 'login';
+        let lastPlacedOrder = null;
         const DEFAULT_SVG = "data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22300%22%20height%3D%22200%22%20viewBox%3D%220%200%20300%20200%22%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22%23e2e8f0%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20fill%3D%22%2364748b%22%20font-family%3D%22sans-serif%22%20font-size%3D%2218%22%3ERasheedhaMart%20Product%3C%2Ftext%3E%3C%2Fsvg%3E";
 
         document.addEventListener("DOMContentLoaded", async () => {
             await checkAuthStatus();
             await loadCategories();
+            await loadActivePromotions();
             await loadProducts(1);
-            if (currentUser) loadCart();
+
+            if (window.location.pathname === '/admin/login' || window.location.hash === '#admin/login') {
+                openAdminModal();
+            } else if (window.location.pathname === '/admin/dashboard' || window.location.hash === '#admin/dashboard') {
+                if (currentUser && currentUser.role === 'ADMIN') {
+                    showSection('admin');
+                } else {
+                    openAdminModal();
+                }
+            }
         });
 
-        function showToast(message, isError = false) {
-            const toastEl = document.getElementById('liveToast');
-            const toastBody = document.getElementById('toastMessage');
-            toastEl.className = `toast align-items-center text-white ${isError ? 'bg-danger' : 'bg-primary'} border-0 shadow-lg rounded-3`;
-            toastBody.innerHTML = `<i class="bi ${isError ? 'bi-exclamation-triangle-fill' : 'bi-check-circle-fill'} me-2"></i> ${message}`;
-            const toast = new bootstrap.Toast(toastEl);
-            toast.show();
+        function openAdminModal() {
+            const alertEl = document.getElementById("adminAuthAlert");
+            if (alertEl) alertEl.classList.add("d-none");
+            document.getElementById("adminAuthEmail").value = "RasheedhaMartAdmin@gmail.com";
+            document.getElementById("adminAuthPassword").value = "";
+            new bootstrap.Modal(document.getElementById('adminAuthModal')).show();
         }
 
-        function showAlert(message, type = 'success') {
-            const box = document.getElementById("alertBox");
-            box.className = `alert alert-${type} alert-dismissible fade show shadow-sm`;
-            document.getElementById("alertMessage").innerText = message;
-            box.classList.remove("d-none");
-            setTimeout(() => hideAlert(), 4000);
+        function openAdminModalFromAuth() {
+            const authModalEl = document.getElementById('authModal');
+            const authModalInstance = bootstrap.Modal.getInstance(authModalEl);
+            if (authModalInstance) authModalInstance.hide();
+            setTimeout(() => {
+                openAdminModal();
+            }, 300);
         }
 
-        function hideAlert() {
-            document.getElementById("alertBox").classList.add("d-none");
-        }
+        async function handleAdminAuthSubmit(e) {
+            e.preventDefault();
+            const alertEl = document.getElementById("adminAuthAlert");
+            alertEl.classList.add("d-none");
 
-        function showSection(section) {
-            ['Store', 'Cart', 'Orders', 'Seller', 'Admin'].forEach(s => {
-                document.getElementById('section' + s).classList.add('d-none');
-            });
-            document.getElementById('section' + section.charAt(0).toUpperCase() + section.slice(1)).classList.remove('d-none');
-            
-            if (section === 'cart') loadCart();
-            if (section === 'orders') loadOrders();
-            if (section === 'seller') loadSellerListings();
-            if (section === 'admin') loadAdminUsers();
-        }
+            const email = document.getElementById("adminAuthEmail").value.trim();
+            const password = document.getElementById("adminAuthPassword").value;
 
-        async function checkAuthStatus() {
             try {
-                const res = await fetch('/api/v1/auth/me');
-                const data = await res.json();
-                if (data.success) {
-                    currentUser = data.data;
-                } else {
-                    currentUser = null;
-                }
-            } catch (e) {
-                currentUser = null;
-            }
-            updateUserUI();
-        }
-
-        function updateUserUI() {
-            const greeting = document.getElementById("userGreeting");
-            const btnLogin = document.getElementById("btnLoginModal");
-            const btnLogout = document.getElementById("btnLogout");
-            const sellerNav = document.getElementById("sellerNavItem");
-            const adminNav = document.getElementById("adminNavItem");
-
-            if (currentUser) {
-                document.getElementById("userName").innerText = currentUser.fullName;
-                document.getElementById("userRole").innerText = currentUser.role;
-                greeting.classList.remove("d-none");
-                btnLogin.classList.add("d-none");
-                btnLogout.classList.remove("d-none");
-
-                if (currentUser.role === 'SELLER' || currentUser.role === 'ADMIN') sellerNav.classList.remove("d-none");
-                else sellerNav.classList.add("d-none");
-
-                if (currentUser.role === 'ADMIN') adminNav.classList.remove("d-none");
-                else adminNav.classList.add("d-none");
-            } else {
-                greeting.classList.add("d-none");
-                btnLogin.classList.remove("d-none");
-                btnLogout.classList.add("d-none");
-                sellerNav.classList.add("d-none");
-                adminNav.classList.add("d-none");
-            }
-        }
-
-        async function autoLoginDemoBuyer() {
-            try {
-                const res = await fetch('/api/v1/auth/login', {
+                const res = await fetch('/api/v1/auth/admin/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email: 'buyer.john@gmail.com', password: 'password123' })
+                    body: JSON.stringify({ email, password })
                 });
                 const data = await res.json();
                 if (data.success) {
                     currentUser = data.data;
                     updateUserUI();
-                    return true;
+                    const modalEl = document.getElementById('adminAuthModal');
+                    const modalInstance = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+                    modalInstance.hide();
+                    showToast("Admin authentication successful!");
+                    showSection('admin');
+                } else {
+                    alertEl.innerText = data.error || "Invalid admin email or password.";
+                    alertEl.classList.remove("d-none");
                 }
-            } catch (e) {}
-            return false;
+            } catch (err) {
+                alertEl.innerText = "Invalid admin email or password.";
+                alertEl.classList.remove("d-none");
+            }
+        }
+
+        function showToast(message, isError = false) {
+            const toastEl = document.getElementById('liveToast');
+            document.getElementById('toastMessage').innerHTML = `<i class="bi ${isError ? 'bi-exclamation-triangle-fill' : 'bi-check-circle-fill'} me-2"></i> ${message}`;
+            toastEl.className = `toast align-items-center text-white ${isError ? 'bg-danger' : 'bg-primary'} border-0 shadow-lg rounded-3`;
+            new bootstrap.Toast(toastEl).show();
+        }
+
+        function toggleChatWindow() {
+            document.getElementById("chatWindow").classList.toggle("d-none");
+        }
+
+        async function handleChatSubmit(e) {
+            e.preventDefault();
+            const input = document.getElementById("chatInput");
+            const msg = input.value.trim();
+            if (!msg) return;
+
+            const chatMessages = document.getElementById("chatMessages");
+            chatMessages.innerHTML += `<div class="chat-msg user">${msg}</div>`;
+            input.value = "";
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            try {
+                const res = await fetch('/api/v1/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: msg })
+                });
+                const data = await res.json();
+                const reply = data.success ? data.data.reply : (data.error || "How can I help you with RasheedhaMart today?");
+                chatMessages.innerHTML += `<div class="chat-msg bot">${reply}</div>`;
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            } catch (e) {
+                chatMessages.innerHTML += `<div class="chat-msg bot">Welcome to RasheedhaMart! Ask me for products by price (e.g. under 1000) or category!</div>`;
+            }
         }
 
         function toggleAuthMode(mode) {
-            isRegisterMode = (mode === 'register');
-            document.getElementById("tabLogin").classList.toggle("active", !isRegisterMode);
-            document.getElementById("tabRegister").classList.toggle("active", isRegisterMode);
-            document.getElementById("registerFields").classList.toggle("d-none", !isRegisterMode);
-            document.getElementById("btnAuthSubmit").innerText = isRegisterMode ? "Create Account" : "Sign In";
+            authMode = mode;
+            document.getElementById("tabLogin").classList.toggle("active", mode === 'login');
+            document.getElementById("tabRegister").classList.toggle("active", mode === 'register');
+            document.getElementById("registerFields").classList.toggle("d-none", mode === 'login');
+            document.getElementById("btnAuthSubmit").innerText = mode === 'login' ? "Sign In" : "Create Account";
+            document.getElementById("authModalTitle").innerHTML = mode === 'login' ? '<i class="bi bi-lock-fill text-info me-2"></i> Sign In to RasheedhaMart' : '<i class="bi bi-person-plus-fill text-info me-2"></i> Create RasheedhaMart Account';
         }
 
         async function handleAuthSubmit(e) {
             e.preventDefault();
-            const email = document.getElementById("authEmail").value;
+            const email = document.getElementById("authEmail").value.trim();
             const password = document.getElementById("authPassword").value;
-            
-            const endpoint = isRegisterMode ? '/api/v1/auth/register' : '/api/v1/auth/login';
-            const payload = isRegisterMode ? {
-                email, password,
-                fullName: document.getElementById("authFullName").value,
-                role: document.getElementById("authRole").value
-            } : { email, password };
+            const fullName = document.getElementById("authFullName").value.trim();
+            const role = document.getElementById("authRole").value;
+
+            const endpoint = authMode === 'login' ? '/api/v1/auth/login' : '/api/v1/auth/register';
+            const payload = authMode === 'login' ? { email, password } : { email, password, fullName, role };
 
             try {
                 const res = await fetch(endpoint, {
@@ -529,29 +652,90 @@
                     body: JSON.stringify(payload)
                 });
                 const data = await res.json();
-
                 if (data.success) {
-                    const modalEl = document.getElementById('authModal');
-                    const modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
-                    modal.hide();
-                    showToast(isRegisterMode ? "Registration successful! Please sign in." : "Signed in successfully!");
-                    await checkAuthStatus();
-                    loadCart();
+                    if (authMode === 'register') {
+                        showToast("Account created successfully! Please sign in.");
+                        toggleAuthMode('login');
+                    } else {
+                        currentUser = data.data;
+                        updateUserUI();
+                        bootstrap.Modal.getInstance(document.getElementById('authModal')).hide();
+                        showToast(`Welcome back, ${currentUser.fullName}!`);
+                        if (currentUser.role === 'ADMIN') {
+                            showSection('admin');
+                        } else {
+                            loadCart();
+                            loadAddresses();
+                        }
+                    }
                 } else {
-                    showAlert(data.error, 'danger');
+                    showToast(data.error || "Authentication failed", true);
                 }
             } catch (err) {
-                showAlert(err.message, 'danger');
+                showToast("Server connection error during authentication.", true);
             }
         }
 
         async function logout() {
-            await fetch('/api/v1/auth/logout', { method: 'POST' });
+            try {
+                await fetch('/api/v1/auth/logout', { method: 'POST' });
+            } catch(e) {}
             currentUser = null;
             updateUserUI();
             showToast("Signed out successfully.");
-            document.getElementById("cartBadge").innerText = "0";
             showSection('store');
+        }
+
+        async function checkAuthStatus() {
+            try {
+                const res = await fetch('/api/v1/auth/me');
+                const data = await res.json();
+                currentUser = data.success ? data.data : null;
+            } catch (e) { currentUser = null; }
+            updateUserUI();
+        }
+
+        function updateUserUI() {
+            const greeting = document.getElementById("userGreeting");
+            const btnLogin = document.getElementById("btnLoginModal");
+            const btnLogout = document.getElementById("btnLogout");
+            const sellerNav = document.getElementById("sellerNavItem");
+            const adminPortalNav = document.getElementById("adminPortalNavItem");
+            const btnAdminTopRight = document.getElementById("btnAdminTopRight");
+
+            if (currentUser) {
+                document.getElementById("userName").innerText = currentUser.fullName;
+                document.getElementById("userRole").innerText = currentUser.role;
+                greeting.classList.remove("d-none");
+                btnLogin.classList.add("d-none");
+                btnLogout.classList.remove("d-none");
+                if (currentUser.role === 'SELLER' || currentUser.role === 'ADMIN') sellerNav.classList.remove("d-none");
+                if (currentUser.role === 'ADMIN') {
+                    if (adminPortalNav) adminPortalNav.classList.remove("d-none");
+                    if (btnAdminTopRight) btnAdminTopRight.classList.remove("d-none");
+                    loadAdminAnalytics();
+                } else {
+                    if (adminPortalNav) adminPortalNav.classList.add("d-none");
+                    if (btnAdminTopRight) btnAdminTopRight.classList.add("d-none");
+                }
+            } else {
+                greeting.classList.add("d-none");
+                btnLogin.classList.remove("d-none");
+                btnLogout.classList.add("d-none");
+                sellerNav.classList.add("d-none");
+                if (adminPortalNav) adminPortalNav.classList.add("d-none");
+                if (btnAdminTopRight) btnAdminTopRight.classList.add("d-none");
+            }
+        }
+
+        function showSection(section) {
+            ['Store', 'Cart', 'Orders', 'Seller', 'Admin'].forEach(s => document.getElementById('section' + s).classList.add('d-none'));
+            document.getElementById('section' + section.charAt(0).toUpperCase() + section.slice(1)).classList.remove('d-none');
+            
+            if (section === 'cart') { loadCart(); loadAddresses(); }
+            if (section === 'orders') loadOrders();
+            if (section === 'seller') loadSellerListings();
+            if (section === 'admin') loadAdminAnalytics();
         }
 
         async function loadCategories() {
@@ -561,9 +745,27 @@
                 if (data.success) {
                     const sel = document.getElementById("searchCategory");
                     sel.innerHTML = '<option value="ALL">All Categories</option>';
-                    data.data.forEach(c => {
-                        sel.innerHTML += `<option value="${c}">${c}</option>`;
-                    });
+                    data.data.forEach(c => { sel.innerHTML += `<option value="${c}">${c}</option>`; });
+                }
+            } catch (e) {}
+        }
+
+        async function loadActivePromotions() {
+            try {
+                const res = await fetch('/api/v1/admin/promotions/active');
+                const data = await res.json();
+                if (data.success && data.data.length > 0) {
+                    const promo = data.data[0];
+                    document.getElementById("promoBannerContainer").innerHTML = `
+                        <div class="card bg-navy text-white rounded-4 border-0 p-4 shadow-sm">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <span class="badge bg-info text-dark mb-2">Featured Promotion</span>
+                                    <h4 class="fw-bold text-white mb-1">${promo.title}</h4>
+                                </div>
+                                ${promo.bannerUrl ? `<img src="${promo.bannerUrl}" style="max-height:80px; border-radius:0.5rem;" alt="Promo">` : ''}
+                            </div>
+                        </div>`;
                 }
             } catch (e) {}
         }
@@ -573,83 +775,41 @@
             const category = document.getElementById("searchCategory").value;
 
             try {
-                const url = `/api/v1/products/search?keyword=${encodeURIComponent(keyword)}&category=${encodeURIComponent(category)}&page=${page}`;
-                const res = await fetch(url);
+                const res = await fetch(`/api/v1/products/search?keyword=${encodeURIComponent(keyword)}&category=${encodeURIComponent(category)}&page=${page}`);
                 const data = await res.json();
-
                 if (data.success) {
                     const list = document.getElementById("productList");
                     list.innerHTML = "";
-                    
-                    if (data.data.products.length === 0) {
-                        list.innerHTML = `<div class="col-12 text-center py-5"><i class="bi bi-inbox fs-1 text-muted"></i><p class="mt-2 text-muted">No products found matching your search criteria.</p></div>`;
-                        return;
-                    }
-
                     data.data.products.forEach(p => {
-                        const imgUrl = p.imageUrl && p.imageUrl.trim() !== "" ? p.imageUrl : DEFAULT_SVG;
                         list.innerHTML += `
                             <div class="col">
                                 <div class="card product-card h-100 shadow-sm">
-                                    <img src="${imgUrl}" class="card-img-top product-img" alt="${p.name}" onerror="this.src='${DEFAULT_SVG}'">
+                                    <img src="${p.imageUrl || DEFAULT_SVG}" class="card-img-top product-img" alt="${p.name}" onerror="this.src='${DEFAULT_SVG}'">
                                     <div class="card-body d-flex flex-column p-4">
                                         <div class="d-flex justify-content-between align-items-center mb-2">
-                                            <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 px-2 py-1">${p.category}</span>
-                                            <span class="text-secondary small"><i class="bi bi-box me-1"></i>Stock: ${p.stockQuantity}</span>
+                                            <span class="badge bg-light text-dark border px-2 py-1">${p.category}</span>
+                                            <span class="text-secondary small">Stock: ${p.stockQuantity}</span>
                                         </div>
                                         <h5 class="card-title text-dark fw-bold text-truncate mb-2">${p.name}</h5>
-                                        <p class="card-text text-secondary small flex-grow-1 mb-3" style="line-height: 1.5;">${p.description || 'Premium quality product available at RasheedhaMart.'}</p>
+                                        <p class="card-text text-secondary small flex-grow-1 mb-3">${p.description || 'Premium quality product.'}</p>
                                         <div class="d-flex justify-content-between align-items-center mb-3">
-                                            <span class="fs-4 fw-bold text-primary">₹${p.price.toFixed(2)}</span>
-                                            <button class="btn btn-outline-secondary btn-sm rounded-pill px-3" onclick="openReviews(${p.id})"><i class="bi bi-star-fill text-warning me-1"></i> Reviews</button>
+                                            <span class="fs-4 fw-bold" style="color: var(--sky-blue);">₹${p.price.toFixed(2)}</span>
                                         </div>
-                                        <button class="btn btn-primary-blue w-100 rounded-3 py-2 fw-semibold" id="btnCart_${p.id}" onclick="addToCart(${p.id})">
-                                            <i class="bi bi-cart-plus me-1"></i> Add to Cart
-                                        </button>
+                                        <button class="btn btn-sky w-100 rounded-3 py-2 fw-semibold" onclick="addToCart(${p.id})"><i class="bi bi-cart-plus me-1"></i> Add to Cart</button>
                                     </div>
                                 </div>
                             </div>`;
                     });
-
-                    renderPagination(data.data.page, data.data.totalPages);
                 }
-            } catch (e) {
-                showAlert("Error loading catalog: " + e.message, "danger");
-            }
-        }
-
-        function renderPagination(current, total) {
-            const pag = document.getElementById("pagination");
-            pag.innerHTML = "";
-            if (total <= 1) return;
-
-            for (let i = 1; i <= total; i++) {
-                pag.innerHTML += `<li class="page-item ${i === current ? 'active' : ''}"><a class="page-link" href="#" onclick="loadProducts(${i})">${i}</a></li>`;
-            }
+            } catch (e) {}
         }
 
         async function addToCart(productId) {
-            // Auto-login as demo buyer if guest user clicks Add to Cart
             if (!currentUser) {
-                const loggedIn = await autoLoginDemoBuyer();
-                if (!loggedIn) {
-                    showToast("Please sign in to add items to your cart.", true);
-                    const authModal = new bootstrap.Modal(document.getElementById('authModal'));
-                    authModal.show();
-                    return;
-                }
+                showToast("Please sign in or create an account to add items to your cart.", true);
+                new bootstrap.Modal(document.getElementById('authModal')).show();
+                return;
             }
-
-            const btn = document.getElementById(`btnCart_${productId}`);
-            if (btn) {
-                btn.innerHTML = `<i class="bi bi-check2 me-1"></i> Added!`;
-                btn.classList.replace("btn-primary-blue", "btn-success");
-                setTimeout(() => {
-                    btn.innerHTML = `<i class="bi bi-cart-plus me-1"></i> Add to Cart`;
-                    btn.classList.replace("btn-success", "btn-primary-blue");
-                }, 1500);
-            }
-
             try {
                 const res = await fetch('/api/v1/cart', {
                     method: 'POST',
@@ -658,13 +818,13 @@
                 });
                 const data = await res.json();
                 if (data.success) {
-                    showToast("Item added to your shopping cart!");
-                    await loadCart();
+                    showToast("Item added to your cart!");
+                    loadCart();
                 } else {
-                    showToast(data.error, true);
+                    showToast(data.error || "Could not add item to cart.", true);
                 }
             } catch (e) {
-                showToast(e.message, true);
+                showToast("Error adding product to cart.", true);
             }
         }
 
@@ -674,68 +834,172 @@
                 const res = await fetch('/api/v1/cart');
                 const data = await res.json();
                 if (data.success) {
-                    const items = data.data.items;
+                    const items = data.data.items || [];
                     document.getElementById("cartBadge").innerText = items.length;
+                    document.getElementById("cartItemCountLabel").innerText = `${items.length} Item(s)`;
                     const tbody = document.getElementById("cartTableBody");
                     tbody.innerHTML = "";
-
                     if (items.length === 0) {
-                        tbody.innerHTML = `<tr><td colspan="5" class="text-center py-5 text-muted"><i class="bi bi-cart-x fs-1"></i><p class="mt-2">Your shopping cart is currently empty.</p></td></tr>`;
+                        tbody.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-muted">Your cart is empty. Browse storefront to add items!</td></tr>`;
                     } else {
                         items.forEach(item => {
-                            const p = item.product;
+                            const p = item.product || {};
                             tbody.innerHTML += `
                                 <tr>
-                                    <td class="ps-4">
-                                        <div class="fw-bold text-dark">${p.name}</div>
-                                        <small class="text-muted">${p.category}</small>
-                                    </td>
-                                    <td class="fw-semibold">₹${p.price.toFixed(2)}</td>
+                                    <td class="ps-4"><strong>${p.name || 'Product'}</strong></td>
+                                    <td>₹${(p.price || 0).toFixed(2)}</td>
                                     <td style="width: 130px;">
-                                        <input type="number" min="1" class="form-control form-control-sm text-center" value="${item.quantity}" onchange="updateCartQty(${p.id}, this.value)">
+                                        <div class="input-group input-group-sm">
+                                            <button class="btn btn-outline-secondary" onclick="updateCartQty(${p.id}, ${item.quantity - 1})">-</button>
+                                            <input type="number" min="1" class="form-control text-center px-1" value="${item.quantity}" onchange="updateCartQty(${p.id}, this.value)">
+                                            <button class="btn btn-outline-secondary" onclick="updateCartQty(${p.id}, ${item.quantity + 1})">+</button>
+                                        </div>
                                     </td>
-                                    <td class="fw-bold text-primary">₹${(p.price * item.quantity).toFixed(2)}</td>
-                                    <td class="text-center"><button class="btn btn-outline-danger btn-sm rounded-circle" onclick="removeCartItem(${p.id})"><i class="bi bi-trash"></i></button></td>
+                                    <td class="fw-bold text-primary">₹${((p.price || 0) * item.quantity).toFixed(2)}</td>
+                                    <td class="text-center"><button class="btn btn-outline-danger btn-sm rounded-circle" onclick="removeCartItem(${p.id})" title="Delete item"><i class="bi bi-trash"></i></button></td>
                                 </tr>`;
                         });
                     }
-
-                    document.getElementById("cartSubtotal").innerText = `₹${data.data.runningTotal.toFixed(2)}`;
-                    document.getElementById("cartGrandTotal").innerText = `₹${data.data.runningTotal.toFixed(2)}`;
+                    const total = data.data.runningTotal || 0;
+                    document.getElementById("cartSubtotal").innerText = `₹${total.toFixed(2)}`;
+                    document.getElementById("cartGrandTotal").innerText = `₹${total.toFixed(2)}`;
                 }
             } catch (e) {}
         }
 
-        async function updateCartQty(productId, qty) {
-            await fetch('/api/v1/cart', {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ productId, quantity: parseInt(qty) })
-            });
-            loadCart();
+        async function updateCartQty(productId, quantity) {
+            try {
+                await fetch('/api/v1/cart', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ productId, quantity: parseInt(quantity) })
+                });
+                loadCart();
+            } catch (e) {}
         }
 
         async function removeCartItem(productId) {
-            await fetch(`/api/v1/cart/${productId}`, { method: 'DELETE' });
-            showToast("Item removed from cart.");
-            loadCart();
+            try {
+                await fetch(`/api/v1/cart/${productId}`, { method: 'DELETE' });
+                showToast("Item deleted from cart.");
+                loadCart();
+            } catch (e) {}
+        }
+
+        async function loadAddresses() {
+            if (!currentUser) return;
+            try {
+                const res = await fetch('/api/v1/addresses');
+                const data = await res.json();
+                if (data.success) {
+                    const list = document.getElementById("addressSelectionList");
+                    list.innerHTML = "";
+                    if (data.data.length === 0) {
+                        list.innerHTML = `<div class="col-12 text-muted">No saved shipping addresses found. Please click 'Add Address' to specify your delivery location!</div>`;
+                    } else {
+                        data.data.forEach(a => {
+                            if (a.isDefault || !selectedAddressId) selectedAddressId = a.id;
+                            list.innerHTML += `
+                                <div class="col-md-6">
+                                    <div class="card p-3 border ${a.id === selectedAddressId ? 'border-primary bg-light' : ''}">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="deliveryAddress" id="addr_${a.id}" ${a.id === selectedAddressId ? 'checked' : ''} onchange="selectedAddressId=${a.id}">
+                                            <label class="form-check-label w-100" for="addr_${a.id}">
+                                                <strong>${a.fullName}</strong> (${a.phone || a.phoneNumber || 'Phone'})<br>
+                                                <small class="text-secondary">${a.addressLine1}, ${a.city}, ${a.state} - ${a.postalCode}</small>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>`;
+                        });
+                    }
+                }
+            } catch (e) {}
+        }
+
+        async function saveAddress(e) {
+            e.preventDefault();
+            const payload = {
+                fullName: document.getElementById("addrName").value,
+                phone: document.getElementById("addrPhone").value,
+                addressLine1: document.getElementById("addrLine1").value,
+                addressLine2: document.getElementById("addrLine2").value,
+                city: document.getElementById("addrCity").value,
+                state: document.getElementById("addrState").value,
+                postalCode: document.getElementById("addrPostal").value,
+                country: document.getElementById("addrCountry").value,
+                isDefault: document.getElementById("addrDefault").checked
+            };
+            try {
+                const res = await fetch('/api/v1/addresses', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (data.success) {
+                    showToast("Shipping address saved!");
+                    bootstrap.Modal.getInstance(document.getElementById('addressModal')).hide();
+                    loadAddresses();
+                }
+            } catch (e) {}
         }
 
         async function checkout() {
             if (!currentUser) return;
             try {
-                const res = await fetch('/api/v1/checkout', { method: 'POST' });
+                const res = await fetch('/api/v1/checkout', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ addressId: selectedAddressId })
+                });
                 const data = await res.json();
                 if (data.success) {
-                    showToast(`Order #${data.data.id} placed successfully!`);
+                    lastPlacedOrder = data.data;
+                    renderOrderSuccessModal(data.data);
                     await loadCart();
-                    showSection('orders');
                 } else {
-                    showAlert(data.error, "danger");
+                    showToast(data.error || "Checkout failed.", true);
                 }
             } catch (e) {
-                showAlert(e.message, "danger");
+                showToast("Server error during checkout.", true);
             }
+        }
+
+        function renderOrderSuccessModal(order) {
+            const container = document.getElementById("orderSuccessDetails");
+            const items = order.items || [];
+
+            let itemsHtml = "";
+            items.forEach(i => {
+                const p = i.product || {};
+                itemsHtml += `
+                    <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                        <div>
+                            <strong>${p.name || 'Purchased Product'}</strong><br>
+                            <small class="text-muted">Quantity: ${i.quantity} x ₹${i.unitPrice.toFixed(2)}</small>
+                        </div>
+                        <span class="fw-bold text-primary">₹${(i.unitPrice * i.quantity).toFixed(2)}</span>
+                    </div>`;
+            });
+
+            container.innerHTML = `
+                <div class="alert alert-success text-center mb-4 rounded-3 p-3">
+                    <h5 class="fw-bold mb-1 text-success"><i class="bi bi-patch-check-fill me-1"></i> THE ORDER IS PLACED SUCCESSFULLY!</h5>
+                    <small>Order #${order.id} | Placed on ${new Date(order.createdAt || Date.now()).toLocaleString()}</small>
+                </div>
+
+                <div class="card p-3 bg-light border-0 rounded-3 mb-4">
+                    <h6 class="fw-bold text-navy mb-2"><i class="bi bi-receipt me-1 text-primary"></i> Payment & Order Total</h6>
+                    <p class="mb-1 small">Status: <span class="badge bg-success">${order.status || 'PENDING'}</span></p>
+                    <p class="mb-1 small">Payment Method: <span class="badge bg-info text-dark">Mock Instant Payment</span></p>
+                    <h4 class="fw-bold text-primary mt-2">Total Amount: ₹${order.totalAmount.toFixed(2)}</h4>
+                </div>
+
+                <h6 class="fw-bold text-navy mb-2">Purchased Products Summary</h6>
+                <div class="bg-white p-3 border rounded-3">${itemsHtml}</div>`;
+
+            new bootstrap.Modal(document.getElementById('orderSuccessModal')).show();
         }
 
         async function loadOrders() {
@@ -746,43 +1010,46 @@
                 if (data.success) {
                     const container = document.getElementById("ordersContainer");
                     container.innerHTML = "";
-
                     if (data.data.length === 0) {
-                        container.innerHTML = `<div class="card p-5 text-center text-muted border-0 shadow-sm rounded-4"><i class="bi bi-box2 fs-1 mb-2"></i><p>No orders placed yet.</p></div>`;
-                        return;
-                    }
-
-                    data.data.forEach(o => {
-                        const statusBadge = getStatusBadge(o.status);
-                        container.innerHTML += `
-                            <div class="card mb-4 shadow-sm border-0 rounded-4 overflow-hidden">
-                                <div class="card-header bg-light d-flex justify-content-between align-items-center py-3 px-4">
-                                    <div><strong>Order #${o.id}</strong> <span class="text-secondary ms-2 small"><i class="bi bi-clock me-1"></i>${new Date(o.createdAt).toLocaleString()}</span></div>
-                                    <div>${statusBadge}</div>
-                                </div>
-                                <div class="card-body p-4">
-                                    <ul class="list-group list-group-flush mb-3">
-                                        ${o.items.map(i => `<li class="list-group-item d-flex justify-content-between align-items-center px-0">${i.product ? i.product.name : 'Product Item'} <span class="text-muted">x${i.quantity}</span> <span class="fw-semibold">₹${(i.unitPrice * i.quantity).toFixed(2)}</span></li>`).join('')}
-                                    </ul>
-                                    <div class="d-flex justify-content-between align-items-center pt-2 border-top">
-                                        <span class="text-secondary fw-semibold">Total Order Amount</span>
-                                        <h4 class="text-primary fw-bold mb-0">₹${o.totalAmount.toFixed(2)}</h4>
+                        container.innerHTML = `<div class="card p-5 text-center text-muted border-0 shadow-sm rounded-4">No order history found. Place an order from your cart!</div>`;
+                    } else {
+                        data.data.forEach(o => {
+                            const steps = ['PENDING', 'CONFIRMED', 'SHIPPED', 'DELIVERED'];
+                            const currentIdx = steps.indexOf(o.status.toUpperCase());
+                            
+                            container.innerHTML += `
+                                <div class="card mb-4 shadow-sm border-0 rounded-4 overflow-hidden">
+                                    <div class="card-header bg-navy text-white d-flex justify-content-between align-items-center py-3 px-4">
+                                        <span><strong>Order #${o.id}</strong> — Placed on ${new Date(o.createdAt).toLocaleDateString()}</span>
+                                        <span class="fs-5 fw-bold text-info">Total Amount: ₹${o.totalAmount.toFixed(2)}</span>
                                     </div>
-                                </div>
-                            </div>`;
-                    });
+                                    <div class="card-body p-4">
+                                        <!-- Delivery Tracker Stepper -->
+                                        <div class="d-flex justify-content-between mb-4">
+                                            <div class="stepper-item ${currentIdx >= 0 ? (currentIdx > 0 ? 'completed' : 'active') : ''}">
+                                                <div class="stepper-circle">1</div><div>Order Placed</div>
+                                            </div>
+                                            <div class="stepper-item ${currentIdx >= 1 ? (currentIdx > 1 ? 'completed' : 'active') : ''}">
+                                                <div class="stepper-circle">2</div><div>Confirmed</div>
+                                            </div>
+                                            <div class="stepper-item ${currentIdx >= 2 ? (currentIdx > 2 ? 'completed' : 'active') : ''}">
+                                                <div class="stepper-circle">3</div><div>Shipped</div>
+                                            </div>
+                                            <div class="stepper-item ${currentIdx >= 3 ? 'completed active' : ''}">
+                                                <div class="stepper-circle">4</div><div>Delivered</div>
+                                            </div>
+                                        </div>
+
+                                        <div class="d-flex justify-content-between align-items-center bg-light p-3 rounded-3 border">
+                                            <span class="text-secondary fw-semibold">Current Delivery Status:</span>
+                                            <span class="badge bg-primary fs-6 px-3 py-2">${o.status}</span>
+                                        </div>
+                                    </div>
+                                </div>`;
+                        });
+                    }
                 }
             } catch (e) {}
-        }
-
-        function getStatusBadge(status) {
-            switch(status) {
-                case 'PENDING': return '<span class="badge bg-warning text-dark px-3 py-2 rounded-pill">PENDING</span>';
-                case 'CONFIRMED': return '<span class="badge bg-info text-dark px-3 py-2 rounded-pill">CONFIRMED</span>';
-                case 'SHIPPED': return '<span class="badge bg-primary px-3 py-2 rounded-pill">SHIPPED</span>';
-                case 'DELIVERED': return '<span class="badge bg-success px-3 py-2 rounded-pill">DELIVERED</span>';
-                default: return `<span class="badge bg-secondary px-3 py-2 rounded-pill">${status}</span>`;
-            }
         }
 
         async function loadSellerListings() {
@@ -796,94 +1063,23 @@
                     data.data.forEach(p => {
                         tbody.innerHTML += `
                             <tr>
-                                <td class="ps-4 fw-semibold">${p.id}</td>
+                                <td class="ps-4">${p.id}</td>
                                 <td><strong>${p.name}</strong></td>
-                                <td><span class="badge bg-light text-dark border">${p.category}</span></td>
-                                <td class="fw-bold text-primary">₹${p.price.toFixed(2)}</td>
-                                <td><span class="badge bg-${p.stockQuantity > 5 ? 'success' : 'danger'}">${p.stockQuantity} in stock</span></td>
-                                <td class="text-end pe-4">
-                                    <button class="btn btn-sm btn-outline-primary me-1 rounded-3" onclick="editProduct(${p.id})"><i class="bi bi-pencil"></i> Edit</button>
-                                    <button class="btn btn-sm btn-outline-danger rounded-3" onclick="deleteProduct(${p.id})"><i class="bi bi-trash"></i> Delete</button>
-                                </td>
+                                <td>${p.category}</td>
+                                <td>₹${p.price.toFixed(2)}</td>
+                                <td><span class="badge bg-success">${p.stockQuantity} in stock</span></td>
+                                <td class="text-end pe-4"><button class="btn btn-sm btn-outline-danger" onclick="deleteProduct(${p.id})">Delete</button></td>
                             </tr>`;
                     });
+                    document.getElementById("sellerTotalProd").innerText = data.data.length;
+                    document.getElementById("sellerActiveProd").innerText = data.data.length;
                 }
             } catch (e) {}
         }
 
-        function switchSellerTab(tab) {
-            document.getElementById("tabSellerListings").classList.toggle("active", tab === 'listings');
-            document.getElementById("tabSellerOrders").classList.toggle("active", tab === 'incoming');
-            document.getElementById("sellerListingsTab").classList.toggle("d-none", tab !== 'listings');
-            document.getElementById("sellerIncomingTab").classList.toggle("d-none", tab !== 'incoming');
-            if (tab === 'incoming') loadSellerIncomingOrders();
-        }
-
-        async function loadSellerIncomingOrders() {
-            try {
-                const res = await fetch('/api/v1/orders/seller');
-                const data = await res.json();
-                if (data.success) {
-                    const container = document.getElementById("sellerOrdersContainer");
-                    container.innerHTML = "";
-                    if (data.data.length === 0) {
-                        container.innerHTML = `<div class="card p-5 text-center text-muted border-0 shadow-sm rounded-4"><p>No incoming orders for your products.</p></div>`;
-                        return;
-                    }
-                    data.data.forEach(o => {
-                        container.innerHTML += `
-                            <div class="card mb-3 shadow-sm border-0 rounded-4">
-                                <div class="card-header bg-light d-flex justify-content-between align-items-center">
-                                    <span>Order #${o.id} — Status: ${getStatusBadge(o.status)}</span>
-                                    <select class="form-select form-select-sm w-auto" onchange="updateOrderStatus(${o.id}, this.value)">
-                                        <option value="">Update Status...</option>
-                                        <option value="CONFIRMED">CONFIRMED</option>
-                                        <option value="SHIPPED">SHIPPED</option>
-                                        <option value="DELIVERED">DELIVERED</option>
-                                    </select>
-                                </div>
-                                <div class="card-body">
-                                    <ul class="list-group list-group-flush mb-2">
-                                        ${o.items.map(i => `<li class="list-group-item d-flex justify-content-between">${i.product ? i.product.name : 'Item'} (x${i.quantity}) <span>₹${(i.unitPrice * i.quantity).toFixed(2)}</span></li>`).join('')}
-                                    </ul>
-                                </div>
-                            </div>`;
-                    });
-                }
-            } catch (e) {}
-        }
-
-        async function updateOrderStatus(orderId, status) {
-            if (!status) return;
-            try {
-                const res = await fetch('/api/v1/orders', {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ orderId, status })
-                });
-                const data = await res.json();
-                if (data.success) {
-                    showToast("Order status updated!");
-                    loadSellerIncomingOrders();
-                } else {
-                    showAlert(data.error, "danger");
-                }
-            } catch (e) {
-                showAlert(e.message, "danger");
-            }
-        }
-
-        function prepareAddProduct() {
-            document.getElementById("productModalTitle").innerText = "Add New Product Listing";
-            document.getElementById("productForm").reset();
-            document.getElementById("prodId").value = "";
-        }
-
-        async function handleProductSubmit(e) {
+        async function saveProduct(e) {
             e.preventDefault();
-            const id = document.getElementById("prodId").value;
             const payload = {
-                id: id ? parseInt(id) : null,
                 name: document.getElementById("prodName").value,
                 category: document.getElementById("prodCategory").value,
                 price: parseFloat(document.getElementById("prodPrice").value),
@@ -891,102 +1087,38 @@
                 imageUrl: document.getElementById("prodImageUrl").value,
                 description: document.getElementById("prodDesc").value
             };
-
-            const method = id ? 'PUT' : 'POST';
             try {
                 const res = await fetch('/api/v1/products', {
-                    method,
+                    method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
                 const data = await res.json();
                 if (data.success) {
-                    const modalEl = document.getElementById('productModal');
-                    const modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
-                    modal.hide();
-                    showToast("Product saved successfully!");
+                    showToast("Product listing created!");
+                    bootstrap.Modal.getInstance(document.getElementById('productModal')).hide();
                     loadSellerListings();
-                    loadProducts();
-                } else {
-                    showAlert(data.error, 'danger');
-                }
-            } catch (err) {
-                showAlert(err.message, 'danger');
-            }
-        }
-
-        async function deleteProduct(id) {
-            if (!confirm("Are you sure you want to delete this product listing?")) return;
-            await fetch(`/api/v1/products/${id}`, { method: 'DELETE' });
-            showToast("Product listing removed.");
-            loadSellerListings();
-            loadProducts();
-        }
-
-        async function openReviews(productId) {
-            document.getElementById("reviewProductId").value = productId;
-            try {
-                const res = await fetch(`/api/v1/reviews?productId=${productId}`);
-                const data = await res.json();
-                if (data.success) {
-                    const info = data.data;
-                    document.getElementById("reviewSummaryHeader").innerHTML = `
-                        <h4 class="fw-bold mb-1">⭐ ${info.averageRating.toFixed(1)} / 5.0</h4>
-                        <span class="text-secondary small">Based on ${info.reviewCount} customer reviews</span>`;
-
-                    const list = document.getElementById("reviewList");
-                    list.innerHTML = "";
-                    if (info.reviews.length === 0) {
-                        list.innerHTML = `<p class="text-center text-muted py-3">No reviews submitted yet for this product.</p>`;
-                    } else {
-                        info.reviews.forEach(r => {
-                            list.innerHTML += `
-                                <div class="card mb-2 p-3 border-0 bg-light rounded-3">
-                                    <div class="d-flex justify-content-between mb-1">
-                                        <strong class="text-dark">${r.buyerName || 'Verified Buyer'}</strong>
-                                        <span class="star-rating">${'⭐'.repeat(r.rating)}</span>
-                                    </div>
-                                    <p class="mb-0 text-secondary small">${r.comment}</p>
-                                </div>`;
-                        });
-                    }
-
-                    new bootstrap.Modal(document.getElementById('reviewModal')).show();
+                    loadProducts(1);
                 }
             } catch (e) {}
         }
 
-        async function submitReview(e) {
-            e.preventDefault();
-            const productId = parseInt(document.getElementById("reviewProductId").value);
-            const rating = parseInt(document.getElementById("reviewRating").value);
-            const comment = document.getElementById("reviewComment").value;
-
+        async function deleteProduct(id) {
+            if (!confirm("Are you sure you want to delete this listing?")) return;
             try {
-                const res = await fetch('/api/v1/reviews', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ productId, rating, comment })
-                });
-                const data = await res.json();
-                if (data.success) {
-                    showToast("Thank you! Review submitted.");
-                    openReviews(productId);
-                } else {
-                    showAlert(data.error, "danger");
-                }
-            } catch (err) {
-                showAlert(err.message, "danger");
-            }
+                await fetch(`/api/v1/products/${id}`, { method: 'DELETE' });
+                showToast("Product listing removed.");
+                loadSellerListings();
+                loadProducts(1);
+            } catch (e) {}
         }
 
         function switchAdminTab(tab) {
-            document.getElementById("tabAdminUsers").classList.toggle("active", tab === 'users');
-            document.getElementById("tabAdminOrders").classList.toggle("active", tab === 'orders');
-            document.getElementById("adminUsersTab").classList.toggle("d-none", tab !== 'users');
-            document.getElementById("adminOrdersTab").classList.toggle("d-none", tab !== 'orders');
+            ['Users', 'Orders', 'Promos'].forEach(t => document.getElementById('admin' + t + 'Tab').classList.add('d-none'));
+            document.getElementById('admin' + tab.charAt(0).toUpperCase() + tab.slice(1) + 'Tab').classList.remove('d-none');
             if (tab === 'users') loadAdminUsers();
             if (tab === 'orders') loadAdminOrders();
+            if (tab === 'promos') loadAdminPromos();
         }
 
         async function loadAdminUsers() {
@@ -999,15 +1131,24 @@
                     data.data.forEach(u => {
                         tbody.innerHTML += `
                             <tr>
-                                <td class="ps-4 fw-semibold">${u.id}</td>
+                                <td>${u.id}</td>
                                 <td><strong>${u.fullName}</strong></td>
                                 <td>${u.email}</td>
-                                <td><span class="badge bg-primary">${u.role}</span></td>
-                                <td>${new Date(u.createdAt).toLocaleDateString()}</td>
-                                <td class="text-end pe-4"><button class="btn btn-sm btn-outline-danger rounded-3" onclick="adminDeleteUser(${u.id})"><i class="bi bi-person-x me-1"></i> Delete</button></td>
+                                <td><span class="badge badge-role">${u.role}</span></td>
+                                <td><button class="btn btn-sm btn-outline-danger" onclick="deleteUser(${u.id})">Delete</button></td>
                             </tr>`;
                     });
                 }
+            } catch (e) {}
+        }
+
+        async function deleteUser(id) {
+            if (!confirm("Are you sure you want to delete this user?")) return;
+            try {
+                await fetch(`/api/v1/admin/user/${id}`, { method: 'DELETE' });
+                showToast("User account deleted.");
+                loadAdminUsers();
+                loadAdminAnalytics();
             } catch (e) {}
         }
 
@@ -1016,29 +1157,109 @@
                 const res = await fetch('/api/v1/admin/orders');
                 const data = await res.json();
                 if (data.success) {
-                    const container = document.getElementById("adminOrdersContainer");
-                    container.innerHTML = "";
+                    const tbody = document.getElementById("adminOrdersBody");
+                    tbody.innerHTML = "";
                     data.data.forEach(o => {
-                        container.innerHTML += `
-                            <div class="card mb-3 shadow-sm border-0 rounded-4">
-                                <div class="card-header bg-light d-flex justify-content-between">
-                                    <span>Order #${o.id} — Buyer ID: ${o.buyerId}</span>
-                                    <span>${getStatusBadge(o.status)}</span>
-                                </div>
-                                <div class="card-body">
-                                    <h5 class="text-primary fw-bold">Total: ₹${o.totalAmount.toFixed(2)}</h5>
-                                </div>
-                            </div>`;
+                        tbody.innerHTML += `
+                            <tr>
+                                <td>Order #${o.id}</td>
+                                <td>User #${o.buyerId}</td>
+                                <td>₹${o.totalAmount.toFixed(2)}</td>
+                                <td><span class="badge bg-primary">${o.status}</span></td>
+                                <td>${new Date(o.createdAt).toLocaleDateString()}</td>
+                            </tr>`;
                     });
                 }
             } catch (e) {}
         }
 
-        async function adminDeleteUser(id) {
-            if (!confirm("Are you sure you want to delete this user?")) return;
-            await fetch(`/api/v1/admin/user/${id}`, { method: 'DELETE' });
-            showToast("User account removed.");
-            loadAdminUsers();
+        async function loadAdminPromos() {
+            try {
+                const res = await fetch('/api/v1/admin/promotions');
+                const data = await res.json();
+                if (data.success) {
+                    const tbody = document.getElementById("adminPromosBody");
+                    tbody.innerHTML = "";
+                    data.data.forEach(p => {
+                        tbody.innerHTML += `
+                            <tr>
+                                <td>${p.id}</td>
+                                <td><strong>${p.title}</strong></td>
+                                <td>${p.bannerUrl ? `<img src="${p.bannerUrl}" style="height:35px;">` : 'None'}</td>
+                                <td><span class="badge ${p.active ? 'bg-success' : 'bg-secondary'}">${p.active ? 'Active' : 'Inactive'}</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary me-1" onclick="togglePromo(${p.id})">Toggle Active</button>
+                                    <button class="btn btn-sm btn-outline-danger" onclick="deletePromo(${p.id})">Delete</button>
+                                </td>
+                            </tr>`;
+                    });
+                }
+            } catch (e) {}
+        }
+
+        async function savePromo(e) {
+            e.preventDefault();
+            const payload = {
+                title: document.getElementById("promoTitle").value,
+                bannerUrl: document.getElementById("promoUrl").value
+            };
+            try {
+                const res = await fetch('/api/v1/admin/promotions', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (data.success) {
+                    showToast("Marketing promotion published!");
+                    bootstrap.Modal.getInstance(document.getElementById('promoModal')).hide();
+                    loadAdminPromos();
+                    loadActivePromotions();
+                }
+            } catch (e) {}
+        }
+
+        async function togglePromo(id) {
+            try {
+                await fetch(`/api/v1/admin/promotions/${id}/toggle`, { method: 'PUT' });
+                loadAdminPromos();
+                loadActivePromotions();
+            } catch (e) {}
+        }
+
+        async function deletePromo(id) {
+            try {
+                await fetch(`/api/v1/admin/promotions/${id}`, { method: 'DELETE' });
+                loadAdminPromos();
+                loadActivePromotions();
+            } catch (e) {}
+        }
+
+        async function loadAdminAnalytics() {
+            try {
+                const res = await fetch('/api/v1/admin/analytics/summary');
+                const data = await res.json();
+                if (data.success) {
+                    const m = data.data;
+                    document.getElementById("admTotalUsers").innerText = m.totalUsers || m.activeUsers || 0;
+                    document.getElementById("admTotalBuyers").innerText = m.totalBuyers || 0;
+                    document.getElementById("admTotalSellers").innerText = m.totalSellers || 0;
+                    document.getElementById("admTotalProducts").innerText = m.totalProducts || 0;
+                    document.getElementById("admTotalOrders").innerText = m.totalOrders || 0;
+                    
+                    if (m.totalRevenue !== undefined && m.totalRevenue !== null) {
+                        document.getElementById("admRev").innerText = `₹${parseFloat(m.totalRevenue).toFixed(2)}`;
+                        document.getElementById("admCost").innerText = `₹${parseFloat(m.estimatedCost || 0).toFixed(2)}`;
+                        document.getElementById("admProfit").innerText = `₹${parseFloat(m.profit || m.estimatedProfit || m.grossProfit || 0).toFixed(2)}`;
+                        document.getElementById("admLoss").innerText = `₹${parseFloat(m.loss || m.estimatedLoss || 0).toFixed(2)}`;
+                    } else {
+                        document.getElementById("admRev").innerText = "Cost/profit data unavailable";
+                        document.getElementById("admCost").innerText = "Cost/profit data unavailable";
+                        document.getElementById("admProfit").innerText = "Cost/profit data unavailable";
+                        document.getElementById("admLoss").innerText = "Cost/profit data unavailable";
+                    }
+                }
+            } catch (e) {}
         }
     </script>
 </body>

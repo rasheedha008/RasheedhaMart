@@ -15,15 +15,17 @@ app.use(session({
     cookie: { maxAge: 1800000 } // 30 mins
 }));
 
-// In-Memory Database with Pre-Populated Seed Data
+// In-Memory Seed Database
 const defaultHash = bcrypt.hashSync('password123', 10);
+const adminHash = bcrypt.hashSync('rasheedhamart00', 10);
 
 const users = [
-    { id: 1, email: 'admin@rasheedhamart.com', passwordHash: defaultHash, fullName: 'System Administrator', role: 'ADMIN', createdAt: new Date() },
+    { id: 1, email: 'RasheedhaMartAdmin@gmail.com', passwordHash: adminHash, fullName: 'System Administrator', role: 'ADMIN', createdAt: new Date() },
     { id: 2, email: 'seller.rasheedha@rasheedhamart.com', passwordHash: defaultHash, fullName: 'Rasheedha Seller Store', role: 'SELLER', createdAt: new Date() },
     { id: 3, email: 'seller.tech@rasheedhamart.com', passwordHash: defaultHash, fullName: 'TechZone Electronics', role: 'SELLER', createdAt: new Date() },
     { id: 4, email: 'buyer.john@gmail.com', passwordHash: defaultHash, fullName: 'John Doe', role: 'BUYER', createdAt: new Date() },
-    { id: 5, email: 'buyer.priya@gmail.com', passwordHash: defaultHash, fullName: 'Priya Sharma', role: 'BUYER', createdAt: new Date() }
+    { id: 5, email: 'buyer.priya@gmail.com', passwordHash: defaultHash, fullName: 'Priya Sharma', role: 'BUYER', createdAt: new Date() },
+    { id: 6, email: 'Rasheedhamart_admin@gmail.com', passwordHash: adminHash, fullName: 'System Administrator', role: 'ADMIN', createdAt: new Date() }
 ];
 
 const products = [
@@ -34,10 +36,20 @@ const products = [
     { id: 5, sellerId: 2, name: 'Eco-Friendly Bamboo Water Bottle', description: 'BPA-free stainless steel bottle with natural bamboo outer insulation.', price: 799.00, stockQuantity: 100, category: 'Home & Living', imageUrl: 'https://images.unsplash.com/photo-1602143407151-7111542de6e8?auto=format&fit=crop&w=500&q=80', createdAt: new Date() }
 ];
 
+const addresses = [
+    { id: 1, userId: 4, fullName: 'John Doe', phone: '9876543213', addressLine1: '123 Park Street', addressLine2: 'Suite 4B', city: 'Chennai', state: 'Tamil Nadu', postalCode: '600001', country: 'India', isDefault: true },
+    { id: 2, userId: 5, fullName: 'Priya Sharma', phone: '9876543214', addressLine1: '45 MG Road', addressLine2: 'Near City Mall', city: 'Bengaluru', state: 'Karnataka', postalCode: '560001', country: 'India', isDefault: true }
+];
+
+const promotions = [
+    { id: 1, title: 'Festive Tech Clearance', bannerUrl: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=1000&q=80', active: true, createdAt: new Date() },
+    { id: 2, title: 'Organic Harvest Festival', bannerUrl: 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=1000&q=80', active: true, createdAt: new Date() }
+];
+
 const cartItems = [];
 const orders = [
-    { id: 1, buyerId: 4, totalAmount: 3998.00, status: 'DELIVERED', createdAt: new Date() },
-    { id: 2, buyerId: 5, totalAmount: 2299.00, status: 'SHIPPED', createdAt: new Date() }
+    { id: 1, buyerId: 4, shippingAddressId: 1, totalAmount: 3998.00, status: 'DELIVERED', createdAt: new Date(), shippingAddressSnapshot: addresses[0] },
+    { id: 2, buyerId: 5, shippingAddressId: 2, totalAmount: 2299.00, status: 'SHIPPED', createdAt: new Date(), shippingAddressSnapshot: addresses[1] }
 ];
 
 const orderItems = [
@@ -53,6 +65,8 @@ const reviews = [
 
 let userSeq = 6;
 let productSeq = 6;
+let addressSeq = 3;
+let promoSeq = 3;
 let orderSeq = 3;
 
 // Serve Web Static Files
@@ -117,6 +131,46 @@ app.get('/api/v1/auth/me', (req, res) => {
     }
 });
 
+// ADDRESS ROUTES
+app.get('/api/v1/addresses', (req, res) => {
+    if (!req.session.user) return res.status(401).json(error('Authentication required.'));
+    const userAddrs = addresses.filter(a => a.userId === req.session.user.id);
+    res.json(success(userAddrs));
+});
+
+app.post('/api/v1/addresses', (req, res) => {
+    if (!req.session.user) return res.status(401).json(error('Authentication required.'));
+    const { fullName, phone, addressLine1, addressLine2, city, state, postalCode, country, isDefault } = req.body;
+    if (!fullName || !phone || !addressLine1 || !city || !state || !postalCode) {
+        return res.status(400).json(error('Required address fields are missing.'));
+    }
+    if (isDefault) {
+        addresses.filter(a => a.userId === req.session.user.id).forEach(a => a.isDefault = false);
+    }
+    const newAddr = {
+        id: addressSeq++,
+        userId: req.session.user.id,
+        fullName,
+        phone,
+        addressLine1,
+        addressLine2: addressLine2 || '',
+        city,
+        state,
+        postalCode,
+        country: country || 'India',
+        isDefault: Boolean(isDefault)
+    };
+    addresses.push(newAddr);
+    res.status(201).json(success(newAddr));
+});
+
+app.delete('/api/v1/addresses/:id', (req, res) => {
+    if (!req.session.user) return res.status(401).json(error('Authentication required.'));
+    const idx = addresses.findIndex(a => a.id === parseInt(req.params.id) && a.userId === req.session.user.id);
+    if (idx !== -1) addresses.splice(idx, 1);
+    res.json(success(true));
+});
+
 // PRODUCT ROUTES
 app.get('/api/v1/products/categories', (req, res) => {
     const cats = [...new Set(products.map(p => p.category))];
@@ -171,20 +225,6 @@ app.post('/api/v1/products', (req, res) => {
     };
     products.push(newProd);
     res.status(201).json(success(newProd));
-});
-
-app.put('/api/v1/products', (req, res) => {
-    if (!req.session.user) return res.status(401).json(error('Authentication required.'));
-    const { id, name, category, price, stockQuantity, imageUrl, description } = req.body;
-    const prod = products.find(p => p.id === parseInt(id));
-    if (!prod) return res.status(404).json(error('Product not found.'));
-    prod.name = name;
-    prod.category = category;
-    prod.price = parseFloat(price);
-    prod.stockQuantity = parseInt(stockQuantity);
-    prod.imageUrl = imageUrl;
-    prod.description = description;
-    res.json(success(prod));
 });
 
 app.delete('/api/v1/products/:id', (req, res) => {
@@ -248,9 +288,24 @@ app.post('/api/v1/checkout', (req, res) => {
     const buyerCart = cartItems.filter(c => c.buyerId === req.session.user.id);
     if (buyerCart.length === 0) return res.status(400).json(error('Cart is empty.'));
 
+    const { addressId } = req.body;
+    let selectedAddr = addresses.find(a => a.id === parseInt(addressId) && a.userId === req.session.user.id);
+    if (!selectedAddr) {
+        selectedAddr = addresses.find(a => a.userId === req.session.user.id);
+    }
+
     let total = 0;
     const oItems = [];
-    const newOrder = { id: orderSeq++, buyerId: req.session.user.id, totalAmount: 0, status: 'PENDING', createdAt: new Date(), items: [] };
+    const newOrder = {
+        id: orderSeq++,
+        buyerId: req.session.user.id,
+        shippingAddressId: selectedAddr ? selectedAddr.id : null,
+        totalAmount: 0,
+        status: 'PENDING',
+        createdAt: new Date(),
+        items: [],
+        shippingAddressSnapshot: selectedAddr ? { ...selectedAddr } : null
+    };
 
     for (const c of buyerCart) {
         const p = products.find(prod => prod.id === c.productId);
@@ -281,41 +336,31 @@ app.get('/api/v1/orders', (req, res) => {
     res.json(success(buyerOrders));
 });
 
-app.get('/api/v1/orders/seller', (req, res) => {
-    if (!req.session.user) return res.status(401).json(error('Authentication required.'));
-    const sellerOrders = orders.filter(o => o.items.some(i => i.sellerId === req.session.user.id));
-    res.json(success(sellerOrders));
+// ADMIN ANALYTICS ROUTE (10 Metrics)
+app.get('/api/v1/admin/analytics/summary', (req, res) => {
+    if (!req.session.user || req.session.user.role !== 'ADMIN') return res.status(403).json(error('Admin role required.'));
+    
+    const totalBuyers = users.filter(u => u.role === 'BUYER').length;
+    const totalSellers = users.filter(u => u.role === 'SELLER').length;
+    const totalRevenue = orders.reduce((sum, o) => sum + (o.totalAmount || 0), 0);
+    const estimatedCost = totalRevenue * 0.70;
+    const grossProfit = totalRevenue - estimatedCost;
+    
+    res.json(success({
+        activeUsers: users.length,
+        totalBuyers,
+        totalSellers,
+        totalProducts: products.length,
+        totalOrders: orders.length,
+        totalRevenue,
+        estimatedCost,
+        grossProfit,
+        estimatedProfit: grossProfit,
+        estimatedLoss: 0
+    }));
 });
 
-app.put('/api/v1/orders', (req, res) => {
-    if (!req.session.user) return res.status(401).json(error('Authentication required.'));
-    const { orderId, status } = req.body;
-    const order = orders.find(o => o.id === parseInt(orderId));
-    if (!order) return res.status(404).json(error('Order not found.'));
-    order.status = status.toUpperCase();
-    res.json(success(order));
-});
-
-// REVIEWS
-app.get('/api/v1/reviews', (req, res) => {
-    const pId = parseInt(req.query.productId);
-    const pReviews = reviews.filter(r => r.productId === pId).map(r => {
-        const u = users.find(user => user.id === r.buyerId);
-        return { ...r, buyerName: u ? u.fullName : 'Verified Buyer' };
-    });
-    const avg = pReviews.length > 0 ? pReviews.reduce((sum, r) => sum + r.rating, 0) / pReviews.length : 0;
-    res.json(success({ reviews: pReviews, averageRating: avg, reviewCount: pReviews.length }));
-});
-
-app.post('/api/v1/reviews', (req, res) => {
-    if (!req.session.user) return res.status(401).json(error('Authentication required.'));
-    const { productId, rating, comment } = req.body;
-    const newReview = { id: reviews.length + 1, productId: parseInt(productId), buyerId: req.session.user.id, rating: parseInt(rating), comment, createdAt: new Date() };
-    reviews.push(newReview);
-    res.status(201).json(success(newReview));
-});
-
-// ADMIN ROUTES
+// ADMIN USER & ORDER MANAGEMENT ROUTES
 app.get('/api/v1/admin/users', (req, res) => {
     if (!req.session.user || req.session.user.role !== 'ADMIN') return res.status(403).json(error('Admin role required.'));
     res.json(success(users.map(sanitizeUser)));
@@ -331,6 +376,51 @@ app.delete('/api/v1/admin/user/:id', (req, res) => {
     const idx = users.findIndex(u => u.id === parseInt(req.params.id));
     if (idx !== -1) users.splice(idx, 1);
     res.json(success(true));
+});
+
+// ADMIN PROMOTIONS
+app.get('/api/v1/admin/promotions/active', (req, res) => {
+    res.json(success(promotions.filter(p => p.active)));
+});
+app.get('/api/v1/admin/promotions', (req, res) => {
+    res.json(success(promotions));
+});
+
+// SMART AI CHATBOT ROUTE
+app.post('/api/v1/chat', (req, res) => {
+    const { message } = req.body;
+    if (!message || typeof message !== 'string') return res.status(400).json(error('Message is required.'));
+    
+    const msg = message.trim().toLowerCase();
+    
+    // Domain guard
+    if (msg.includes('weather') || msg.includes('politics') || msg.includes('math') || msg.includes('code') || msg.includes('recipe')) {
+        return res.json(success({ reply: 'I am RasheedhaMart AI Assistant. I can only help you with products, orders, carting, seller tools, and platform queries!' }));
+    }
+    
+    // Check price filter (e.g. under 500, under 1000)
+    const matchPrice = msg.match(/(under|below|less than|within)?\s*₹?\s*(\d+)/);
+    const maxPrice = matchPrice ? parseFloat(matchPrice[2]) : null;
+    
+    let targetCat = null;
+    if (msg.includes('electronic')) targetCat = 'Electronics';
+    else if (msg.includes('fashion') || msg.includes('saree')) targetCat = 'Fashion';
+    else if (msg.includes('grocer') || msg.includes('spice')) targetCat = 'Groceries';
+    else if (msg.includes('home') || msg.includes('bottle')) targetCat = 'Home & Living';
+    
+    let filtered = products;
+    if (targetCat) filtered = filtered.filter(p => p.category.toLowerCase() === targetCat.toLowerCase());
+    if (maxPrice) filtered = filtered.filter(p => p.price <= maxPrice);
+    
+    if (maxPrice || targetCat || msg.includes('product') || msg.includes('stock') || msg.includes('available')) {
+        if (filtered.length === 0) {
+            return res.json(success({ reply: `No products found ${targetCat ? 'in category ' + targetCat : ''} ${maxPrice ? 'under ₹' + maxPrice : ''}. Browse our storefront for more!` }));
+        }
+        let reply = `Found ${filtered.length} product(s):\n` + filtered.map(p => `• ${p.name} (${p.category}) — ₹${p.price.toFixed(2)}, Stock: ${p.stockQuantity}`).join('\n');
+        return res.json(success({ reply }));
+    }
+    
+    res.json(success({ reply: 'Welcome to RasheedhaMart! You can search products by category and price (e.g. "electronics under 1000 rupees"), add to cart, and track orders live!' }));
 });
 
 // Fallback index.html

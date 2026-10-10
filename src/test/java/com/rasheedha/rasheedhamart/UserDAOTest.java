@@ -36,5 +36,8 @@ public class UserDAOTest {
         assertTrue(found.isPresent());
         assertEquals("Test Buyer", found.get().getFullName());
         assertEquals("BUYER", found.get().getRole());
+
+        String hash = com.rasheedha.rasheedhamart.util.PasswordUtil.hashPassword("rasheedhamart00");
+        assertTrue(com.rasheedha.rasheedhamart.util.PasswordUtil.verifyPassword("rasheedhamart00", hash));
     }
 }

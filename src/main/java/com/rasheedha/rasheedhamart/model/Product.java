@@ -12,6 +12,8 @@ public class Product {
     private int stockQuantity;
     private String category;
     private String imageUrl;
+    private boolean active = true;
+    private boolean hidden = false;
     private Timestamp createdAt;
 
     public Product() {}
@@ -25,6 +27,22 @@ public class Product {
         this.stockQuantity = stockQuantity;
         this.category = category;
         this.imageUrl = imageUrl;
+        this.active = true;
+        this.hidden = false;
+        this.createdAt = createdAt;
+    }
+
+    public Product(Long id, Long sellerId, String name, String description, BigDecimal price, int stockQuantity, String category, String imageUrl, boolean active, boolean hidden, Timestamp createdAt) {
+        this.id = id;
+        this.sellerId = sellerId;
+        this.name = name;
+        this.description = description;
+        this.price = price;
+        this.stockQuantity = stockQuantity;
+        this.category = category;
+        this.imageUrl = imageUrl;
+        this.active = active;
+        this.hidden = hidden;
         this.createdAt = createdAt;
     }
 
@@ -51,6 +69,12 @@ public class Product {
 
     public String getImageUrl() { return imageUrl; }
     public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
+
+    public boolean isActive() { return active; }
+    public void setActive(boolean active) { this.active = active; }
+
+    public boolean isHidden() { return hidden; }
+    public void setHidden(boolean hidden) { this.hidden = hidden; }
 
     public Timestamp getCreatedAt() { return createdAt; }
     public void setCreatedAt(Timestamp createdAt) { this.createdAt = createdAt; }

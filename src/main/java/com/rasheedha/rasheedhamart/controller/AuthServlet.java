@@ -58,6 +58,21 @@ public class AuthServlet extends HttpServlet {
                 resp.setStatus(HttpServletResponse.SC_OK);
                 resp.getWriter().write(objectMapper.writeValueAsString(ApiResponse.success(UserResponseDTO.fromUser(user))));
 
+            } else if ("/admin/login".equals(pathInfo) || "/admin-login".equals(pathInfo)) {
+                Map<String, String> body = objectMapper.readValue(req.getInputStream(), Map.class);
+                User user = authService.adminLogin(body.get("email"), body.get("password"));
+
+                HttpSession oldSession = req.getSession(false);
+                if (oldSession != null) {
+                    oldSession.invalidate();
+                }
+                HttpSession newSession = req.getSession(true);
+                newSession.setMaxInactiveInterval(1800);
+                newSession.setAttribute("user", user);
+
+                resp.setStatus(HttpServletResponse.SC_OK);
+                resp.getWriter().write(objectMapper.writeValueAsString(ApiResponse.success(UserResponseDTO.fromUser(user))));
+
             } else if ("/logout".equals(pathInfo)) {
                 HttpSession session = req.getSession(false);
                 if (session != null) {

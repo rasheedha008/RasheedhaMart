@@ -1,31 +1,71 @@
 package com.rasheedha.rasheedhamart.service;
 
+import com.rasheedha.rasheedhamart.dao.AddressDAO;
+import com.rasheedha.rasheedhamart.dao.AddressDAOImpl;
+import com.rasheedha.rasheedhamart.dao.AddressSnapshotDAO;
+import com.rasheedha.rasheedhamart.dao.AddressSnapshotDAOImpl;
 import com.rasheedha.rasheedhamart.dao.CartDAO;
+import com.rasheedha.rasheedhamart.dao.DatabaseManager;
 import com.rasheedha.rasheedhamart.dao.OrderDAO;
 import com.rasheedha.rasheedhamart.exception.ResourceNotFoundException;
 import com.rasheedha.rasheedhamart.exception.ValidationException;
+import com.rasheedha.rasheedhamart.model.Address;
+import com.rasheedha.rasheedhamart.model.AddressSnapshot;
 import com.rasheedha.rasheedhamart.model.CartItem;
 import com.rasheedha.rasheedhamart.model.Order;
 import com.rasheedha.rasheedhamart.model.OrderItem;
 
 import java.math.BigDecimal;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class OrderService {
 
     private final OrderDAO orderDAO;
     private final CartDAO cartDAO;
+    private final AddressDAO addressDAO;
+    private final AddressSnapshotDAO snapshotDAO;
 
     public OrderService(OrderDAO orderDAO, CartDAO cartDAO) {
         this.orderDAO = orderDAO;
         this.cartDAO = cartDAO;
+        this.addressDAO = new AddressDAOImpl();
+        this.snapshotDAO = new AddressSnapshotDAOImpl();
+    }
+
+    public OrderService(OrderDAO orderDAO, CartDAO cartDAO, AddressDAO addressDAO, AddressSnapshotDAO snapshotDAO) {
+        this.orderDAO = orderDAO;
+        this.cartDAO = cartDAO;
+        this.addressDAO = addressDAO;
+        this.snapshotDAO = snapshotDAO;
     }
 
     public Order checkout(Long buyerId) {
+        return checkout(buyerId, null);
+    }
+
+    public Order checkout(Long buyerId, Long addressId) {
         List<CartItem> cartItems = cartDAO.getCartItems(buyerId);
         if (cartItems.isEmpty()) {
             throw new ValidationException("Cannot place order: Shopping cart is empty.");
+        }
+
+        // Address Validation & Ownership Enforcement
+        Address selectedAddress = null;
+        if (addressId != null) {
+            Optional<Address> optAddr = addressDAO.findById(addressId);
+            if (optAddr.isPresent() && optAddr.get().getUserId().equals(buyerId)) {
+                selectedAddress = optAddr.get();
+            } else {
+                throw new ValidationException("Invalid delivery address selected.");
+            }
+        } else {
+            List<Address> userAddrs = addressDAO.findByUserId(buyerId);
+            selectedAddress = userAddrs.stream().filter(Address::isDefault).findFirst()
+                .orElse(userAddrs.isEmpty() ? null : userAddrs.get(0));
         }
 
         BigDecimal totalAmount = BigDecimal.ZERO;
@@ -55,13 +95,40 @@ public class OrderService {
             orderItems.add(orderItem);
         }
 
-        Order order = new Order(null, buyerId, totalAmount, "PENDING", null);
-        Order createdOrder = orderDAO.createOrder(order, orderItems);
+        Order order = new Order(
+            null,
+            buyerId,
+            selectedAddress != null ? selectedAddress.getId() : null,
+            totalAmount,
+            "PENDING",
+            null
+        );
 
-        // Clear shopping cart on successful checkout
-        cartDAO.clearCart(buyerId);
+        // Execute Order Creation + Immutable Snapshot in Single Database Transaction
+        try (Connection conn = DatabaseManager.getConnection()) {
+            conn.setAutoCommit(false);
+            try {
+                Order createdOrder = orderDAO.createOrderTransactional(conn, order, orderItems);
+                
+                if (selectedAddress != null) {
+                    AddressSnapshot snapshot = AddressSnapshot.fromAddress(createdOrder.getId(), selectedAddress);
+                    snapshotDAO.createSnapshot(conn, snapshot);
+                    createdOrder.setShippingAddressSnapshot(snapshot);
+                }
 
-        return createdOrder;
+                cartDAO.clearCart(buyerId);
+                conn.commit();
+                return createdOrder;
+
+            } catch (Exception e) {
+                conn.rollback();
+                throw new RuntimeException("Order creation transaction failed: " + e.getMessage(), e);
+            } finally {
+                conn.setAutoCommit(true);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Database error during order checkout transaction: " + e.getMessage(), e);
+        }
     }
 
     public List<Order> getBuyerOrders(Long buyerId) {
@@ -99,7 +166,7 @@ public class OrderService {
             case "SHIPPED":
                 return "DELIVERED".equals(t);
             case "DELIVERED":
-                return false; // Terminal state
+                return false;
             default:
                 return false;
         }

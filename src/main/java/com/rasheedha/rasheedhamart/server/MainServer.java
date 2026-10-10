@@ -4,6 +4,7 @@ import com.rasheedha.rasheedhamart.controller.*;
 import com.rasheedha.rasheedhamart.dao.*;
 import com.rasheedha.rasheedhamart.filter.AuthFilter;
 import com.rasheedha.rasheedhamart.filter.EncodingFilter;
+import com.rasheedha.rasheedhamart.listener.DatabaseConnectionListener;
 import com.rasheedha.rasheedhamart.service.*;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.DefaultServlet;
@@ -39,6 +40,8 @@ public class MainServer {
         CartDAO cartDAO = new CartDAOImpl();
         OrderDAO orderDAO = new OrderDAOImpl();
         ReviewDAO reviewDAO = new ReviewDAOImpl();
+        AddressDAO addressDAO = new AddressDAOImpl();
+        PromotionDAO promotionDAO = new PromotionDAOImpl();
 
         // 3. Instantiate Services
         AuthService authService = new AuthService(userDAO);
@@ -47,11 +50,15 @@ public class MainServer {
         OrderService orderService = new OrderService(orderDAO, cartDAO);
         ReviewService reviewService = new ReviewService(reviewDAO);
         AdminService adminService = new AdminService(userDAO, productDAO, orderDAO);
+        AddressService addressService = new AddressService(addressDAO);
+        MarketingService marketingService = new MarketingService(promotionDAO);
+        AnalyticsService analyticsService = new AnalyticsService(userDAO, productDAO, orderDAO);
 
         // 4. Configure Jetty Servlet Context
         Server server = new Server(port);
         ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
         context.setContextPath("/");
+        context.addEventListener(new DatabaseConnectionListener());
 
         // Configure static web resource base if available
         String resourceBase = MainServer.class.getResource("/web") != null ? 
@@ -70,6 +77,10 @@ public class MainServer {
         context.addServlet(new ServletHolder(new OrderServlet(orderService)), "/api/v1/orders/*");
         context.addServlet(new ServletHolder(new ReviewServlet(reviewService)), "/api/v1/reviews/*");
         context.addServlet(new ServletHolder(new AdminServlet(adminService)), "/api/v1/admin/*");
+        context.addServlet(new ServletHolder(new AddressServlet(addressService)), "/api/v1/addresses/*");
+        context.addServlet(new ServletHolder(new AdminMarketingServlet(marketingService)), "/api/v1/admin/promotions/*");
+        context.addServlet(new ServletHolder(new AdminAnalyticsServlet(analyticsService)), "/api/v1/admin/analytics/*");
+        context.addServlet(new ServletHolder(new ChatServlet()), "/api/v1/chat/*");
         context.addServlet(new ServletHolder(new HealthServlet()), "/api/v1/health");
 
         // Default Servlet for UI static web files

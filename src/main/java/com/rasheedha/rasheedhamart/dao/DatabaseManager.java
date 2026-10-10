@@ -47,8 +47,11 @@ public class DatabaseManager {
     }
 
     public static synchronized void shutdown() {
-        if (dataSource != null && !dataSource.isClosed()) {
-            dataSource.close();
+        if (dataSource != null) {
+            if (!dataSource.isClosed()) {
+                dataSource.close();
+            }
+            dataSource = null;
         }
     }
 
@@ -76,10 +79,13 @@ public class DatabaseManager {
              Connection conn = getConnection();
              Statement stmt = conn.createStatement()) {
 
-            String sql = reader.lines().collect(Collectors.joining("\n"));
-            for (String sqlStatement : sql.split(";")) {
+            String content = reader.lines()
+                .filter(line -> !line.trim().startsWith("--"))
+                .collect(Collectors.joining("\n"));
+
+            for (String sqlStatement : content.split(";")) {
                 String trimmed = sqlStatement.trim();
-                if (!trimmed.isEmpty() && !trimmed.startsWith("--")) {
+                if (!trimmed.isEmpty()) {
                     stmt.execute(trimmed);
                 }
             }

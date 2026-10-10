@@ -1,0 +1,22 @@
+# RasheedhaMart Application Configuration Properties Example
+# Copy this file to config.properties and fill in your actual database & API credentials
+
+# Database Configuration
+db.driver=com.mysql.cj.jdbc.Driver
+db.url=jdbc:mysql://localhost:3306/rasheedhamart?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+db.user=root
+db.password=rootpassword
+
+# HikariCP Settings
+db.pool.maxSize=10
+db.pool.minIdle=2
+db.pool.connectionTimeout=30000
+
+# Application Settings
+app.name=RasheedhaMart
+app.version=1.0.0
+app.env=production
+
+# Chatbot Integration
+chatbot.provider=mock
+chatbot.apiKey=
